@@ -251,18 +251,17 @@ node_id(Node, ID) :-
             ID = node(ID0)
         ).
 
-node_var(Node, Var) :- get_attr(Node, triple, node(Var,_,_)).
+node_var_low_high(Node, Var, Low, High) :-
+        get_attr(Node, triple, node(Var,Low,High)).
 
-node_low(Node, L)   :- get_attr(Node, triple, node(_,L,_)).
-
-node_high(Node, H)  :- get_attr(Node, triple, node(_,_,H)).
+node_varindex(Node, VI) :-
+        node_var_low_high(Node, V, _, _),
+        var_index(V, VI).
 
 var_less_than(NA, NB) :-
         (   integer(NB) -> true
-        ;   node_var(NA, VA),
-            var_index(VA, VAI),
-            node_var(NB, VB),
-            var_index(VB, VBI),
+        ;   node_varindex(NA, VAI),
+            node_varindex(NB, VBI),
             VAI < VBI
         ).
 
@@ -281,20 +280,20 @@ apply_(F, NA, NB, C) -->
 apply_(F, NA, NB, Node) -->
         { var_less_than(NA, NB),
           !,
-          node_var(NA, VA), node_low(NA, LA), node_high(NA, HA) },
+          node_var_low_high(NA, VA, LA, HA) },
         apply(F, LA, NB, Low),
         apply(F, HA, NB, High),
         make_node(VA, Low, High, Node).
 apply_(F, NA, NB, Node) -->
-        { node_var(NA, VA), node_var(NB, VB), VA == VB,
-          !,
-          node_low(NA, LA), node_low(NB, LB),
-          node_high(NA, HA), node_high(NB, HB) },
+        { node_var_low_high(NA, VA, LA, HA),
+          node_var_low_high(NB, VB, LB, HB),
+          VA == VB },
+        !,
         apply(F, LA, LB, Low),
         apply(F, HA, HB, High),
         make_node(VA, Low, High, Node).
 apply_(F, NA, NB, Node) --> % NB > NA
-        { node_var(NB, VB), node_low(NB, LB), node_high(NB, HB) },
+        { node_var_low_high(NB, VB, LB, HB) },
         apply(F, NA, LB, Low),
         apply(F, NA, HB, High),
         make_node(VB, Low, High, Node).
@@ -367,10 +366,8 @@ bdds_ites([_-B|Bs]) --> bdd_ite(B), bdds_ites(Bs).
 bdd_ite(Node) -->
         (   { integer(Node) } -> []
         ;   { node_id(Node, ID) } ->
-            { node_var(Node, Var),
+            { node_var_low_high(Node, Var, Low, High),
               var_index(Var, Index),
-              node_high(Node, High),
-              node_low(Node, Low),
               del_attr(Node, triple),
               del_attr(Node, id),
               node_id(High, HID),
@@ -389,6 +386,45 @@ labeling([X|Xs]) :- indomain(X), labeling(Xs).
 
 indomain(0).
 indomain(1).
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   SATCount
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+%?- clpb:sat_count(X, N).
+
+sat_count(Sat0, N) :-
+        nb_getval('$clpb_next_var', NextVar),
+        nb_setval('$clpb_next_var', 1),
+        catch((term_variables(Sat0, Vs),
+               maplist(del_attrs, Vs),
+               parse_sat(Sat0, Sat),
+               sat_bdd(Sat, BDD),
+               nb_getval('$clpb_next_var', VNum),
+               bdd_count(BDD, VNum, Count),
+               throw(count(Count))),
+              count(N),
+              true),
+        nb_setval('$clpb_next_var', NextVar).
+
+bdd_count(Node, VNum, Count) :-
+        (   integer(Node) -> Count = Node
+        ;   get_attr(Node, count, Count) -> true
+        ;   node_var_low_high(Node, V, Low, High),
+            bdd_count(Low, VNum, LCount),
+            bdd_count(High, VNum, HCount),
+            bdd_pow(Low, V, VNum, LPow),
+            bdd_pow(High, V, VNum, HPow),
+            Count is LPow*LCount + HPow*HCount,
+            put_attr(Node, count, Count)
+        ).
+
+bdd_pow(Node, V, VNum, Pow) :-
+        var_index(V, Index),
+        (   integer(Node) -> P = VNum
+        ;   node_varindex(Node, P)
+        ),
+        Pow is 2^(P - Index - 1).
 
 make_clpb_var('$clpb_next_var') :- nb_setval('$clpb_next_var', 0).
 
