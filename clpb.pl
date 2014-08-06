@@ -361,15 +361,17 @@ attribute_goals(Var) -->
         bdds_ites(BDDs).
 
 bdds_ites([]) --> [].
-bdds_ites([_-B|Bs]) --> bdd_ite(B), bdds_ites(Bs).
+bdds_ites([_-B|Bs]) -->
+        bdd_ite(B),
+        { bdd_clear(B) },
+        bdds_ites(Bs).
 
 bdd_ite(Node) -->
-        (   { integer(Node) } -> []
+        (   { integer(Node) ;  get_attr(Node, visited, true) } -> []
         ;   { node_id(Node, ID) } ->
             { node_var_low_high(Node, Var, Low, High),
               var_index(Var, Index),
-              del_attr(Node, triple),
-              del_attr(Node, id),
+              put_attr(Node, visited, true),
               node_id(High, HID),
               node_id(Low, LID) },
             [ID : (v_i(Var,Index) -> HID ; LID )],
@@ -378,6 +380,13 @@ bdd_ite(Node) -->
         ;   []
         ).
 
+bdd_clear(Node) :-
+        (   node_var_low_high(Node, _, Low, High) ->
+            bdd_clear(Low),
+            bdd_clear(High),
+            del_attrs(Node)
+        ;   true
+        ).
 
 %?- sat(X+Y).
 
