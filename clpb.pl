@@ -93,7 +93,7 @@
 state(S0, S), [S] --> [S0].
 
 
-is_sat(V)     :- var(V).
+is_sat(V)     :- var(V), !.
 is_sat(I)     :- integer(I), between(0, 1, I).
 is_sat(~A)    :- is_sat(A).
 is_sat(A*B)   :- is_sat(A), is_sat(B).
