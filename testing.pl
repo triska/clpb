@@ -1,11 +1,9 @@
 :- use_module(clpb).
 
-sat([], 0).
-sat([], 1).
-sat([], _).
-sat([_|Rs], X*Y) :- sat(Rs, X), sat(Rs, Y).
-sat([_|Rs], X+Y) :- sat(Rs, X), sat(Rs, Y).
-sat([_|Rs], X#Y) :- sat(Rs, X), sat(Rs, Y).
+sat(_)  --> [].
+sat(X*Y) --> [_], sat(X), sat(Y).
+sat(X+Y) --> [_], sat(X), sat(Y).
+sat(X#Y) --> [_], sat(X), sat(Y).
 
 
 %?- vs_eqs([A,B,C,D], Eqs).
@@ -21,8 +19,8 @@ vs_eqs_([V|Vs], X) --> vs_eqs_(Vs, X), ( [X=V] ; [] ).
 run(N) :-
         length(Ls, N),
         portray_clause(N),
-        sat(Ls, Sat1),
-        sat(Ls, Sat2),
+        phrase(sat(Sat1), Ls),
+        phrase(sat(Sat2), Ls),
         term_variables(Sat1-Sat2, Vs0),
         permutation(Vs0, Vs),
         vs_eqs(Vs, Eqs),
@@ -42,7 +40,3 @@ run(N) :-
 run :- run(_).
 
 %?- run.
-%@ 0.
-%@ 1.
-%@ 2.
-%@ 3.
