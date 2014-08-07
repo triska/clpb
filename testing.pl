@@ -1,0 +1,48 @@
+:- use_module(clpb).
+
+sat([], 0).
+sat([], 1).
+sat([], _).
+sat([_|Rs], X*Y) :- sat(Rs, X), sat(Rs, Y).
+sat([_|Rs], X+Y) :- sat(Rs, X), sat(Rs, Y).
+sat([_|Rs], X#Y) :- sat(Rs, X), sat(Rs, Y).
+
+
+%?- vs_eqs([A,B,C,D], Eqs).
+
+vs_eqs(Vs, Eqs) :- phrase(vs_eqs(Vs), Eqs).
+
+vs_eqs([]) --> [].
+vs_eqs([V|Vs]) --> vs_eqs_(Vs, V), vs_eqs(Vs).
+
+vs_eqs_([], _) --> [].
+vs_eqs_([V|Vs], X) --> vs_eqs_(Vs, X), ( [X=V] ; [] ).
+
+run(N) :-
+        length(Ls, N),
+        portray_clause(N),
+        sat(Ls, Sat1),
+        sat(Ls, Sat2),
+        term_variables(Sat1-Sat2, Vs0),
+        permutation(Vs0, Vs),
+        vs_eqs(Vs, Eqs),
+        findall(Vs, (sat(Sat1),sat(Sat2),maplist(call, Eqs),labeling(Vs)), Sols1),
+        findall(Vs, (labeling(Vs),maplist(call,Eqs),sat(Sat1*Sat2)), Sols2),
+        (   Sols1 == Sols2 -> true
+        ;   throw(neq-Sat1-Sat2-Eqs-Vs0-Vs-Sols1-Sols2)
+        ),
+        % (   Sols1 == [] ->
+        %     (   \+ \+ (maplist(call,Eqs), taut(Sat, T), T == 0) -> true
+        %     ;   throw(tautfail-Eqs-Sat)
+        %     )
+        % ;   true
+        % ),
+        false.
+
+run :- run(_).
+
+%?- run.
+%@ 0.
+%@ 1.
+%@ 2.
+%@ 3.
