@@ -85,6 +85,7 @@
 
 :- use_module(library(error)).
 :- use_module(library(assoc)).
+:- use_module(library(apply_macros)).
 
                                 %bool_get(X, BDDs) :- get_attr(X, clpb, BDDs).
 
@@ -313,7 +314,20 @@ attr_unify_hook(var_index_sats(V,_,SBs0), Other) :-
 restrict_bdd(BDD) :-
         restrict_bdd_(BDD),
         unvisit_bdd(BDD),
+        is_bdd(BDD),
         satisfiable_bdd(BDD).
+
+is_bdd(BDD) :-
+        catch((phrase(bdd_ite(BDD), ITEs0),
+               maplist(ite_ground, ITEs0, Ls0),
+               sort(Ls0, Ls1),
+               (   same_length(Ls0, Ls1) -> throw(is_ok)
+               ;   domain_error(reduced_ites, (ITEs0,Ls0,Ls1))
+               )),
+              is_ok,
+              true).
+
+ite_ground(_:(v_i(_,I) -> HID ; LID), t(I,HID,LID)).
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -363,10 +377,13 @@ attribute_goals(Var) -->
 bdds_ites([]) --> [].
 bdds_ites([_-B|Bs]) -->
         bdd_ite(B),
-        { bdd_clear(B) },
         bdds_ites(Bs).
 
-bdd_ite(Node) -->
+bdd_ite(B) -->
+        bdd_ite_(B),
+        { bdd_clear(B) }.
+
+bdd_ite_(Node) -->
         (   { integer(Node) ;  get_attr(Node, visited, true) } -> []
         ;   { node_id(Node, ID) } ->
             { node_var_low_high(Node, Var, Low, High),
@@ -375,8 +392,8 @@ bdd_ite(Node) -->
               node_id(High, HID),
               node_id(Low, LID) },
             [ID : (v_i(Var,Index) -> HID ; LID )],
-            bdd_ite(Low),
-            bdd_ite(High)
+            bdd_ite_(Low),
+            bdd_ite_(High)
         ;   []
         ).
 
@@ -390,8 +407,9 @@ bdd_clear(Node) :-
 
 %?- sat(X+Y).
 
-labeling([]).
-labeling([X|Xs]) :- indomain(X), labeling(Xs).
+labeling(Xs) :-
+        must_be(list, Xs),
+        maplist(indomain, Xs).
 
 indomain(0).
 indomain(1).
