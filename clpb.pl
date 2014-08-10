@@ -89,7 +89,7 @@
 
                                 %bool_get(X, BDDs) :- get_attr(X, clpb, BDDs).
 
-%state(S) --> state(S, S).
+state(S) --> state(S, S).
 
 state(S0, S), [S] --> [S0].
 
@@ -151,18 +151,38 @@ parse_sat(Sat0, Sat) :-
         term_variables(Sat, Vs),
         maplist(enumerate_variable, Vs).
 
+sat_vs_roots(Sat, Vs, Roots) :-
+        term_variables(Sat, Vs),
+        maplist(var_index_root, Vs, _, Roots0),
+        term_variables(Roots0, Roots).
+
 sat(Sat0) :-
         parse_sat(Sat0, Sat),
         sat_bdd(Sat, BDD),
-        term_variables(Sat, Vs),
-        maplist(attach_bdd(Sat-BDD), Vs),
-        satisfiable_bdd(BDD).
+        sat_vs_roots(Sat, Vs, Roots),
+        foldl(root_and, Roots, BDD, BDD1),
+        maplist(del_bdd, Roots),
+        maplist(=(Root), Roots),
+        put_attr(Root, bdd, BDD1),
+        maplist(attach_bdd(BDD1), Vs),
+        satisfiable_bdd(BDD1).
+
+del_bdd(Root) :- del_attr(Root, bdd).
+
+root_and(Root, BDD0, BDD) :-
+        (   get_attr(Root, bdd, B) ->
+            bdd_and(B, BDD0, BDD)
+        ;   BDD = BDD0
+        ).
+
 
 taut(Sat0, Truth) :-
         parse_sat(Sat0, Sat),
-        sat_bdd(Sat, BDD),
-        (   BDD == 0 -> Truth = 0
-        ;   BDD == 1 -> Truth = 1
+        sat_vs_roots(Sat, _, Roots),
+        (   sat_bdd(Sat, BDD), foldl(root_and, Roots, BDD, BDD1),
+            BDD1 == 0 -> Truth = 0
+        ;   sat_bdd(i(1)#Sat, BDD), foldl(root_and, Roots, BDD, BDD1),
+            BDD1 == 0 -> Truth = 1
         ;   false
         ).
 
@@ -177,22 +197,32 @@ satisfiable_bdd(BDD) :-
         ;   true
         ).
 
-var_index(V, I) :- var_index_bdds(V, I, _).
+var_index(V, I) :- var_index_root(V, I, _).
 
-var_index_bdds(V, I, SBs) :- get_attr(V, clpb, var_index_sats(_,I,SBs)).
+var_index_root(V, I, Root) :- get_attr(V, clpb, var_index_root(_,I,Root)).
 
 enumerate_variable(V) :-
-        (   var_index_bdds(V, Index0, SBs) -> true
-        ;   SBs = [],
-            nb_getval('$clpb_next_var', Index0),
+        (   var_index_root(V, _, _) -> true
+        ;   nb_getval('$clpb_next_var', Index0),
+            put_attr(V, clpb, var_index_root(V,Index0,_)),
             Index is Index0 + 1,
             nb_setval('$clpb_next_var', Index)
-        ),
-        put_attr(V, clpb, var_index_sats(V,Index0,SBs)).
+        ).
 
-attach_bdd(SB, V) :-
-        var_index_bdds(V, Index, SBs),
-        put_attr(V, clpb, var_index_sats(V,Index,[SB|SBs])).
+
+attach_bdd(BDD, V) :-
+        var_index_root(V, _, Root),
+        put_attr(Root, bdd, BDD).
+
+%?- sat(X+Y).
+
+bdd_and(NA, NB, And) :-
+        (   node_id(NA, _) ->
+            empty_assoc(H0),
+            empty_assoc(G0),
+            phrase(apply(*, NA, NB, And), [H0-G0], _)
+        ;   And = NB
+        ).
 
 
 bool_op(+, 0, 0, 0).
@@ -300,22 +330,20 @@ apply_(F, NA, NB, Node) --> % NB > NA
         make_node(VB, Low, High, Node).
 
 
-attr_unify_hook(var_index_sats(V,_,SBs0), Other) :-
-        (   integer(Other), between(0, 1, Other) ->
-            pairs_keys_values(SBs0, _, BDDs),
-            maplist(restrict_bdd, BDDs)
-            % length(BDDs, L),
-            % format("~w BDDs\n", [L]),
-        ;   sat(V=:=Other)
+attr_unify_hook(var_index_root(_,I,Root), Other) :-
+        (   integer(Other) ->
+            (   between(0, 1, Other) ->
+                get_attr(Root, bdd, BDD0),
+                bdd_restriction(BDD0, I, BDD),
+                is_bdd(BDD),
+                put_attr(Root, bdd, BDD),
+                satisfiable_bdd(BDD)
+            ;   domain_error(boolean, Other)
+            )
+        ;   representation_error('please use sat(X=:=Y) instead of X = Y')
         ).
 
 %?- sat((~X)*X + B).
-
-restrict_bdd(BDD) :-
-        restrict_bdd_(BDD),
-        unvisit_bdd(BDD),
-        is_bdd(BDD),
-        satisfiable_bdd(BDD).
 
 is_bdd(BDD) :-
         catch((phrase(bdd_ite(BDD), ITEs0),
@@ -330,54 +358,45 @@ is_bdd(BDD) :-
 ite_ground(_:(v_i(_,I) -> HID ; LID), t(I,HID,LID)).
 
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   TODO: correctness? dynamic programming?
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-node_replacement(Node, Replacement) :-
-        del_attr(Node, triple),
-        del_attr(Node, id),
-        Node = Replacement.
+bdd_restriction(Node, VI, Res) :-
+        empty_assoc(H0),
+        empty_assoc(G0),
+        phrase(bdd_restriction_(Node, VI, Res), [H0-G0], _).
+        %is_bdd(Res),
 
-unvisit_bdd(Node) :-
-        (   get_attr(Node, visited, true) ->
-            get_attr(Node, triple, node(_,Low,High)),
-            unvisit_bdd(Low),
-            unvisit_bdd(High),
-            del_attr(Node, visited)
-        ;   true
-        ).
-
-restrict_bdd_(Node) :-
-        (   get_attr(Node, visited, true) -> true
-        ;   get_attr(Node, triple, node(V,Low,High)) ->
-            (   integer(V) ->
-                (   V =:= 0 -> node_replacement(Node, Low)
-                ;   V =:= 1 -> node_replacement(Node, High)
-                ),
-                restrict_bdd_(Node)
-            ;   restrict_bdd_(Low),
-                restrict_bdd_(High),
-                (   Low == High -> node_replacement(Node, Low)
-                ;   true
+bdd_restriction_(Node, VI, Res) -->
+        (   { integer(Node) } -> { Res = Node }
+        ;   { node_var_low_high(Node, Var, Low, High) } ->
+            (   { integer(Var) } ->
+                (   { Var =:= 0 } -> bdd_restriction_(Low, VI, Res)
+                ;   { Var =:= 1 } -> bdd_restriction_(High, VI, Res)
+                ;   { domain_error(boolean, Var) }
                 )
-            ),
-            (   var(Node) -> put_attr(Node, visited, true)
-            ;   true
+            ;   (   { var_index(Var, I0),
+                      node_id(Node, ID) },
+                    (   { I0 > VI } -> { Res = Node }
+                    ;   state(_-G0), { get_assoc(ID, G0, Res) } -> []
+                    ;   bdd_restriction_(Low, VI, LRes),
+                        bdd_restriction_(High, VI, HRes),
+                        make_node(Var, LRes, HRes, Res),
+                        state(H0-G0, H0-G),
+                        { put_assoc(ID, G0, Res, G) }
+                    )
+                )
             )
-        ;   true
+        ;   { domain_error(node, Node) }
         ).
 
-%?- sat(X).
+%?- sat(X+Y).
 
 attribute_goals(Var) -->
-        { var_index_bdds(Var, _, BDDs) },
-        bdds_ites(BDDs).
-
-bdds_ites([]) --> [].
-bdds_ites([_-B|Bs]) -->
-        bdd_ite(B),
-        bdds_ites(Bs).
+        { var_index_root(Var, _, Root) },
+        (   { get_attr(Root, bdd, BDD) } ->
+            bdd_ite(BDD),
+            { del_attr(Root, bdd) }
+        ;   []
+        ).
 
 bdd_ite(B) -->
         bdd_ite_(B),
@@ -462,5 +481,8 @@ make_clpb_var('$clpb_next_node') :- nb_setval('$clpb_next_node', 0).
 user:exception(undefined_global_variable, Name, retry) :-
         make_clpb_var(Name), !.
 
-%?- sat(~X+Y), Y = 0.
+%?- sat(~X+Y).
 
+%?- sat(X*Y).
+%?- trace, sat(X).
+%?- sat(X+Y), X = 1.
