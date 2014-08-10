@@ -151,7 +151,7 @@ parse_sat(Sat0, Sat) :-
         term_variables(Sat, Vs),
         maplist(enumerate_variable, Vs).
 
-sat_vs_roots(Sat, Vs, Roots) :-
+sat_roots(Sat, Roots) :-
         term_variables(Sat, Vs),
         maplist(var_index_root, Vs, _, Roots0),
         term_variables(Roots0, Roots).
@@ -159,12 +159,11 @@ sat_vs_roots(Sat, Vs, Roots) :-
 sat(Sat0) :-
         parse_sat(Sat0, Sat),
         sat_bdd(Sat, BDD),
-        sat_vs_roots(Sat, Vs, Roots),
+        sat_roots(Sat, Roots),
         foldl(root_and, Roots, BDD, BDD1),
         maplist(del_bdd, Roots),
         maplist(=(Root), Roots),
         put_attr(Root, bdd, BDD1),
-        maplist(attach_bdd(BDD1), Vs),
         satisfiable_bdd(BDD1).
 
 del_bdd(Root) :- del_attr(Root, bdd).
@@ -178,11 +177,12 @@ root_and(Root, BDD0, BDD) :-
 
 taut(Sat0, Truth) :-
         parse_sat(Sat0, Sat),
-        sat_vs_roots(Sat, _, Roots),
-        (   sat_bdd(Sat, BDD), foldl(root_and, Roots, BDD, BDD1),
-            BDD1 == 0 -> Truth = 0
-        ;   sat_bdd(i(1)#Sat, BDD), foldl(root_and, Roots, BDD, BDD1),
-            BDD1 == 0 -> Truth = 1
+        sat_roots(Sat, Roots),
+        foldl(root_and, Roots, 1, Ands),
+        (   sat_bdd(Sat, BDD), bdd_and(BDD, Ands, B), B == 0 ->
+            Truth = 0
+        ;   sat_bdd(i(1)#Sat, BDD), bdd_and(BDD, Ands, B), B == 0 ->
+            Truth = 1
         ;   false
         ).
 
@@ -209,10 +209,6 @@ enumerate_variable(V) :-
             nb_setval('$clpb_next_var', Index)
         ).
 
-
-attach_bdd(BDD, V) :-
-        var_index_root(V, _, Root),
-        put_attr(Root, bdd, BDD).
 
 %?- sat(X+Y).
 
