@@ -324,7 +324,6 @@ attr_unify_hook(var_index_root(_,I,Root), Other) :-
             (   between(0, 1, Other) ->
                 get_attr(Root, bdd, BDD0),
                 bdd_restriction(BDD0, I, BDD),
-                is_bdd(BDD),
                 put_attr(Root, bdd, BDD),
                 satisfiable_bdd(BDD)
             ;   domain_error(boolean, Other)
