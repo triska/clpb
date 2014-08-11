@@ -14,7 +14,7 @@ vs_eqs([]) --> [].
 vs_eqs([V|Vs]) --> vs_eqs_(Vs, V), vs_eqs(Vs).
 
 vs_eqs_([], _) --> [].
-vs_eqs_([V|Vs], X) --> vs_eqs_(Vs, X), ( [sat(X=:=V)] ; [] ).
+vs_eqs_([V|Vs], X) --> vs_eqs_(Vs, X), ( [X=V] ; [] ).
 
 run(N) :-
         length(Ls, N),
@@ -26,7 +26,7 @@ run(N) :-
         vs_eqs(Vs, Eqs),
         findall(Vs, (sat(Sat1),sat(Sat2),maplist(call, Eqs),labeling(Vs)), Sols1),
         findall(Vs, (labeling(Vs),maplist(call,Eqs),sat(Sat1*Sat2)), Sols2),
-        (   Sols1 == Sols2 -> true
+        (   sort(Sols1, Sols), sort(Sols2, Sols) -> true
         ;   throw(neq-Sat1-Sat2-Eqs-Vs0-Vs-Sols1-Sols2)
         ),
         % (   Sols1 == [] ->
