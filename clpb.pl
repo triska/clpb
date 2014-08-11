@@ -106,6 +106,7 @@ is_sat(A=<B)  :- is_sat(A), is_sat(B).
 is_sat(A>=B)  :- is_sat(A), is_sat(B).
 is_sat(A<B)   :- is_sat(A), is_sat(B).
 is_sat(A>B)   :- is_sat(A), is_sat(B).
+is_sat(X^F)   :- var(X), is_sat(F).
 
 % wrap variables with v(...) and integers with i(...)
 sat_nondefaulty(V, v(V)) :- var(V), !.
@@ -123,7 +124,7 @@ sat_rewrite(i(I), i(I)).
 sat_rewrite(P0*Q0, P*Q) :- sat_rewrite(P0, P), sat_rewrite(Q0, Q).
 sat_rewrite(P0+Q0, P+Q) :- sat_rewrite(P0, P), sat_rewrite(Q0, Q).
 sat_rewrite(P0#Q0, P#Q) :- sat_rewrite(P0, P), sat_rewrite(Q0, Q).
-%sat_rewrite(X^P0, X^P)  :- sat_rewrite(P0, P).
+sat_rewrite(X^F0, X^F)  :- sat_rewrite(F0, F).
 % synonyms
 sat_rewrite(~P, R)      :- sat_rewrite(i(1) # P, R).
 sat_rewrite(P =:= Q, R) :- sat_rewrite(~P # Q, R).
@@ -257,6 +258,12 @@ sat_bdd(Sat, BDD) :-
 
 sat_bdd(i(I), I) --> !.
 sat_bdd(v(V), Node) --> !, make_node(V, 0, 1, Node).
+sat_bdd(v(V)^Sat, Node) --> !,
+        sat_bdd(Sat, BDD),
+        { var_index(V, Index),
+          bdd_restriction(BDD, Index, 0, NA),
+          bdd_restriction(BDD, Index, 1, NB) },
+        apply(+, NA, NB, Node).
 sat_bdd(Sat, Node) -->
         { Sat =.. [F,A,B] },
         sat_bdd(A, NA),
@@ -323,7 +330,7 @@ attr_unify_hook(var_index_root(_,I,Root), Other) :-
         (   integer(Other) ->
             (   between(0, 1, Other) ->
                 get_attr(Root, bdd, BDD0),
-                bdd_restriction(BDD0, I, BDD),
+                bdd_restriction(BDD0, I, Other, BDD),
                 put_attr(Root, bdd, BDD),
                 satisfiable_bdd(BDD)
             ;   domain_error(boolean, Other)
@@ -347,26 +354,31 @@ ite_ground(_:(v_i(_,I) -> HID ; LID), t(I,HID,LID)).
 
 
 
-bdd_restriction(Node, VI, Res) :-
+bdd_restriction(Node, VI, Value, Res) :-
         empty_assoc(H0),
         empty_assoc(G0),
-        phrase(bdd_restriction_(Node, VI, Res), [H0-G0], _).
-        %is_bdd(Res),
+        phrase(bdd_restriction_(Node, VI, Value, Res), [H0-G0], _).
+        % is_bdd(Res).
 
-bdd_restriction_(Node, VI, Res) -->
+bdd_restriction_(Node, VI, Value, Res) -->
         (   { integer(Node) } -> { Res = Node }
         ;   { node_var_low_high(Node, Var, Low, High) } ->
             (   { integer(Var) } ->
-                (   { Var =:= 0 } -> bdd_restriction_(Low, VI, Res)
-                ;   { Var =:= 1 } -> bdd_restriction_(High, VI, Res)
+                (   { Var =:= 0 } -> bdd_restriction_(Low, VI, Value, Res)
+                ;   { Var =:= 1 } -> bdd_restriction_(High, VI, Value, Res)
                 ;   { domain_error(boolean, Var) }
                 )
             ;   (   { var_index(Var, I0),
                       node_id(Node, ID) },
-                    (   { I0 > VI } -> { Res = Node }
+                    (   { I0 =:= VI } ->
+                        (   { Value =:= 0 } -> bdd_restriction_(Low, VI, Value, Res)
+                        ;   { Value =:= 1 } -> bdd_restriction_(High, VI, Value, Res)
+                        ;   { domain_error(boolean, Value) }
+                        )
+                    ;   { I0 > VI } -> { Res = Node }
                     ;   state(_-G0), { get_assoc(ID, G0, Res) } -> []
-                    ;   bdd_restriction_(Low, VI, LRes),
-                        bdd_restriction_(High, VI, HRes),
+                    ;   bdd_restriction_(Low, VI, Value, LRes),
+                        bdd_restriction_(High, VI, Value, HRes),
                         make_node(Var, LRes, HRes, Res),
                         state(H0-G0, H0-G),
                         { put_assoc(ID, G0, Res, G) }
@@ -380,11 +392,14 @@ bdd_restriction_(Node, VI, Res) -->
 
 attribute_goals(Var) -->
         { var_index_root(Var, _, Root) },
+        boolean(Var),
         (   { get_attr(Root, bdd, BDD) } ->
             bdd_ite(BDD),
             { del_attr(Root, bdd) }
         ;   []
         ).
+
+boolean(V) --> [sat(V =:= V)].
 
 bdd_ite(B) -->
         bdd_ite_(B),
