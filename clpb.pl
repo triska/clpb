@@ -212,12 +212,9 @@ enumerate_variable(V) :-
 %?- sat(X+Y).
 
 bdd_and(NA, NB, And) :-
-        (   node_id(NA, _) ->
-            empty_assoc(H0),
-            empty_assoc(G0),
-            phrase(apply(*, NA, NB, And), [H0-G0], _)
-        ;   And = NB
-        ).
+        empty_assoc(H0),
+        empty_assoc(G0),
+        phrase(apply(*, NA, NB, And), [H0-G0], _).
 
 
 bool_op(+, 0, 0, 0).
@@ -255,7 +252,8 @@ make_node(Var, Low, High, Node) -->
 
 sat_bdd(Sat, BDD) :-
         empty_assoc(H0),
-        phrase(sat_bdd(Sat, BDD), [H0-_], _).
+        empty_assoc(G0),
+        phrase(sat_bdd(Sat, BDD), [H0-G0], _).
 
 sat_bdd(i(I), I) --> !.
 sat_bdd(v(V), Node) --> !, make_node(V, 0, 1, Node).
@@ -263,9 +261,7 @@ sat_bdd(Sat, Node) -->
         { Sat =.. [F,A,B] },
         sat_bdd(A, NA),
         sat_bdd(B, NB),
-        state(H0-_, H-_),
-        { empty_assoc(G0),
-          phrase(apply(F, NA, NB, Node), [H0-G0], [H-_]) }.
+        apply(F, NA, NB, Node).
 
 node_id(Node, ID) :-
         (   integer(Node) ->
@@ -292,17 +288,15 @@ var_less_than(NA, NB) :-
         ).
 
 apply(F, NA, NB, Node) -->
-        state(H0-G0, H-G),
-        { node_id(NA, IDA), node_id(NB, IDB),
-          (   get_assoc(g(F,IDA,IDB), G0, Node) -> H0 = H, G0 = G
-          ;   phrase(apply_(F, NA, NB, Node), [H0-G0], [H-G1]),
-              put_assoc(g(F,IDA,IDB), G1, Node, G)
-          ) }.
+        (   { integer(NA), integer(NB) } -> { once(bool_op(F, NA, NB, Node)) }
+        ;   { node_id(NA, IDA), node_id(NB, IDB) },
+            (   state(_-G0), { get_assoc(g(F,IDA,IDB), G0, Node) } -> []
+            ;   apply_(F, NA, NB, Node),
+                state(H0-G0, H0-G),
+                { put_assoc(g(F,IDA,IDB), G0, Node, G) }
+            )
+        ).
 
-apply_(F, NA, NB, C) -->
-        { integer(NA), integer(NB),
-          !,
-          once(bool_op(F, NA, NB, C)) }.
 apply_(F, NA, NB, Node) -->
         { var_less_than(NA, NB),
           !,
