@@ -429,9 +429,17 @@ bdd_clear(Node) :-
 
 %?- sat(X+Y).
 
-labeling(Xs) :-
-        must_be(list, Xs),
-        maplist(indomain, Xs).
+labeling(Vs0) :-
+        must_be(list, Vs0),
+        maplist(var_with_index, Vs0, IVs0),
+        keysort(IVs0, IVs),
+        pairs_values(IVs, Vs),
+        maplist(indomain, Vs).
+
+var_with_index(V, I-V) :-
+        (   var_index_root(V, I, _) -> true
+        ;   I = 0
+        ).
 
 indomain(0).
 indomain(1).
