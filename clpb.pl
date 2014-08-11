@@ -187,14 +187,13 @@ taut(Sat0, Truth) :-
         ).
 
 satisfiable_bdd(BDD) :-
-        BDD \== 0,
-        (   get_attr(BDD, triple, node(V,Low,High)),
-            integer(Low), integer(High) ->
-            (   Low =:= 1 -> V = 0
-            ;   High =:= 1 -> V = 1
-            ;   domain_error(robbd, node(V,Low,High))
+        (   BDD == 0 -> false
+        ;   BDD == 1 -> true
+        ;   node_var_low_high(BDD, Var, Low, High),
+            (   Low == 0 -> Var = 1
+            ;   High == 0 -> Var = 0
+            ;   true
             )
-        ;   true
         ).
 
 var_index(V, I) :- var_index_root(V, I, _).
