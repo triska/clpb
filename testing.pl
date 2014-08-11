@@ -14,7 +14,7 @@ vs_eqs([]) --> [].
 vs_eqs([V|Vs]) --> vs_eqs_(Vs, V), vs_eqs(Vs).
 
 vs_eqs_([], _) --> [].
-vs_eqs_([V|Vs], X) --> vs_eqs_(Vs, X), ( [X=V] ; [] ).
+vs_eqs_([V|Vs], X) --> vs_eqs_(Vs, X), ( [sat(X=:=V)] ; [] ).
 
 run(N) :-
         length(Ls, N),
