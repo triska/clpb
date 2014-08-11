@@ -27,53 +27,6 @@
     the GNU General Public License.
 */
 
-%?- sat((A + B + B) + (A + B + B)*D*E).
-
-%?- taut(X + ~X, T).
-
-%?- sat(X+(Y* ~Y)).
-
-%?- sat(X * Y), labeling([X,Y]).
-
-%?- sat(X*Y).
-%@ node(7): (v_i(X, 2)->node(6);false),
-%@ node(6): (v_i(Y, 3)->true;false).
-
-%?- sat(A* ~A +B).
-
-%?- sat(C* ~C + B* ~B + D).
-
-%?- sat(~ (A+B)), labeling([A,B]).
-
-%?- sat(~ (A+B)), B = 0.
-
-%?- sat(A*A + C).
-
-%?- sat(X), X = Y.
-
-%?- sat(X+Y), sat(A+B), A = X.
-
-%?- sat(X), sat(Y), X = Y, X = 0.
-
-%?- sat(X=:=Y).
-%@ node(4): (v_i(X, 0)->node(2);node(3)),
-%@ node(3): (v_i(Y, 1)->false;true),
-%@ node(2): (v_i(Y, 1)->true;false).
-
-%?- sat(A+B), A = 1.
-
-%?- sat(A =:= B), A = 1.
-
-%?- sat(A* ~A + B).
-%?- sat(A* ~A).
-
-%?- sat(A+B).
-
-%?- sat(A* ~A + B).
-
-%?- sat(A+A), A = 1.
-
-
 
 :- module(clpb, [
                  op(300, fy, ~),
@@ -87,12 +40,103 @@
 :- use_module(library(assoc)).
 :- use_module(library(apply_macros)).
 
-                                %bool_get(X, BDDs) :- get_attr(X, clpb, BDDs).
+/** <module> Constraint Logic Programming over Boolean Variables
+
+### Introduction			{#clpb-intro}
+
+Constraint programming is a declarative formalism that lets you
+describe conditions a solution must satisfy. This library provides
+CLP(B), Constraint Logic Programming over Boolean Variables. It can be
+used to model and solve combinatorial problems such as circuit
+verification, graph colouring and allocation tasks.
+
+The implementation is based on ordered and reduced Binary Decision
+Diagrams (BDDs).
+
+
+### Boolean expressions {#clpb-exprs}
+
+A _Boolean expression_ is one of:
+
+    | _0_                | Falsehood                            |
+    | _1_                | Truth                                |
+    | _variable_         | Unknown truth value                  |
+    | ~ Expr             | Logical NOT                          |
+    | Expr + Expr        | Logical OR                           |
+    | Expr * Expr        | Logical AND                          |
+    | Expr # Expr        | Exclusive OR                         |
+    | X ^ Expr           | Existential quantification           |
+    | Expr =:= Expr      | Equality                             |
+    | Expr =\= Expr      | Disequality                          |
+    | Expr =< Expr       | Less or equal                        |
+    | Expr >= Expr       | Greater or equal                     |
+    | Expr < Expr        | Less than                            |
+    | Expr > Expr        | Greater than                         |
+
+where _Expr_ again denotes a Boolean expression.
+
+### Interface predicates   {#clpb-interface}
+
+The interface predicates of CLP(B) are:
+
+    * sat(+Expr)
+      True iff Expr is satisfiable.
+
+    * taut(+Expr, T)
+      If Expr is a tautology with respect to the posted constraints, succeeds
+      with *T = 1*. If Expr cannot be satisfied, succeeds with *T = 0*.
+      Otherwise, it fails.
+
+    * labeling(+Vs)
+      Assigns truth values to the variables Vs such that all constraints
+      are satisfied.
+
+
+### Examples				{#clpb-examples}
+
+Here is an example session with a few queries and their answers:
+
+==
+?- use_module(library(clpb)).
+true.
+
+?- sat(X*Y).
+X = Y, Y = 1.
+
+?- sat(X * ~X).
+false.
+
+?- sat(X^Y^(X+Y)).
+sat(X=:=X),
+sat(Y=:=Y).
+
+?- sat(X*Y + X*Z), labeling([X,Y,Z]).
+X = Z, Z = 1, Y = 0 ;
+X = Y, Y = 1, Z = 0 ;
+X = Y, Y = Z, Z = 1.
+
+?- sat(X =< Y), sat(Y =< Z), taut(X =< Z, T).
+T = 1,
+sat(X=:=X),
+node(63): (v_i(X, 22)->node(62);node(61)),
+node(61): (v_i(Y, 23)->node(60);true),
+node(60): (v_i(Z, 24)->true;false),
+node(62): (v_i(Y, 23)->node(60);false),
+sat(Y=:=Y),
+sat(Z=:=Z).
+==
+
+@author Markus Triska
+*/
+
 
 state(S) --> state(S, S).
 
 state(S0, S), [S] --> [S0].
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Type checking.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 is_sat(V)     :- var(V), !.
 is_sat(I)     :- integer(I), between(0, 1, I).
@@ -118,6 +162,10 @@ sat_nondefaulty(S0, S) :-
         sat_nondefaulty(Y0, Y),
         S =.. [F,X,Y].
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Rewriting to canonical expressions.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 % elementary
 sat_rewrite(v(V), v(V)).
 sat_rewrite(i(I), i(I)).
@@ -134,11 +182,6 @@ sat_rewrite(P >= Q, R)  :- sat_rewrite(Q =< P, R).
 sat_rewrite(P < Q, R)   :- sat_rewrite(~P * Q, R).
 sat_rewrite(P > Q, R)   :- sat_rewrite(Q < P, R).
 
-%?- clpb:sat_rewrite(~v(P)> v(Q), R).
-
-                                %?- gtrace, clpb:sat(A+B).
-
-                                %?- clpb:sat(A+A+B).
 
 must_be_sat(Sat) :-
         (   is_sat(Sat) -> true
@@ -156,6 +199,11 @@ sat_roots(Sat, Roots) :-
         term_variables(Sat, Vs),
         maplist(var_index_root, Vs, _, Roots0),
         term_variables(Roots0, Roots).
+
+%% sat(Sat) is semidet.
+%
+% States the constraint that Sat be a satisfiable Boolean expression.
+% Fails if Sat cannot be satisfied.
 
 sat(Sat0) :-
         parse_sat(Sat0, Sat),
@@ -175,6 +223,11 @@ root_and(Root, BDD0, BDD) :-
         ;   BDD = BDD0
         ).
 
+%% taut(+Sat, ?T) is semidet
+%
+% Succeeds with T = 0 if Sat cannot be satisfied, and with T = 1 if
+% Sat is always true with respect to the current constraints. Fails
+% otherwise.
 
 taut(Sat0, Truth) :-
         parse_sat(Sat0, Sat),
@@ -209,8 +262,6 @@ enumerate_variable(V) :-
             nb_setval('$clpb_next_var', Index)
         ).
 
-
-%?- sat(X+Y).
 
 bdd_and(NA, NB, And) :-
         empty_assoc(H0),
@@ -294,6 +345,10 @@ var_less_than(NA, NB) :-
             VAI < VBI
         ).
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   apply//4. Uses memoization to improve performance.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 apply(F, NA, NB, Node) -->
         (   { integer(NA), integer(NB) } -> { once(bool_op(F, NA, NB, Node)) }
         ;   { node_id(NA, IDA), node_id(NB, IDB) },
@@ -338,8 +393,6 @@ attr_unify_hook(var_index_root(_,I,Root), Other) :-
         ;   representation_error('please use sat(X=:=Y) instead of X = Y')
         ).
 
-%?- sat((~X)*X + B).
-
 is_bdd(BDD) :-
         catch((phrase(bdd_ite(BDD), ITEs0),
                maplist(ite_ground, ITEs0, Ls0),
@@ -353,6 +406,9 @@ is_bdd(BDD) :-
 ite_ground(_:(v_i(_,I) -> HID ; LID), t(I,HID,LID)).
 
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   BDD restriction.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 bdd_restriction(Node, VI, Value, Res) :-
         empty_assoc(H0),
@@ -371,8 +427,10 @@ bdd_restriction_(Node, VI, Value, Res) -->
             ;   (   { var_index(Var, I0),
                       node_id(Node, ID) },
                     (   { I0 =:= VI } ->
-                        (   { Value =:= 0 } -> bdd_restriction_(Low, VI, Value, Res)
-                        ;   { Value =:= 1 } -> bdd_restriction_(High, VI, Value, Res)
+                        (   { Value =:= 0 } ->
+                            bdd_restriction_(Low, VI, Value, Res)
+                        ;   { Value =:= 1 } ->
+                            bdd_restriction_(High, VI, Value, Res)
                         ;   { domain_error(boolean, Value) }
                         )
                     ;   { I0 > VI } -> { Res = Node }
@@ -388,7 +446,9 @@ bdd_restriction_(Node, VI, Value, Res) -->
         ;   { domain_error(node, Node) }
         ).
 
-%?- sat(X+Y).
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Projection to residual goals.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 attribute_goals(Var) -->
         { var_index_root(Var, _, Root) },
@@ -427,7 +487,10 @@ bdd_clear(Node) :-
         ;   true
         ).
 
-%?- sat(X+Y).
+%% labeling(+Vs) is nondet.
+%
+% Assigns truth values to the Boolean variables Vs such that all
+% stated constraints are satisfied.
 
 labeling(Vs0) :-
         must_be(list, Vs0),
@@ -446,9 +509,10 @@ indomain(1).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    SATCount
+
+   Currently does not take into account other constraints.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-%?- clpb:sat_count(X, N).
 
 sat_count(Sat0, N) :-
         nb_getval('$clpb_next_var', NextVar),
@@ -492,8 +556,3 @@ make_clpb_var('$clpb_next_node') :- nb_setval('$clpb_next_node', 0).
 user:exception(undefined_global_variable, Name, retry) :-
         make_clpb_var(Name), !.
 
-%?- sat(~X+Y).
-
-%?- sat(X*Y).
-%?- trace, sat(X).
-%?- sat(X+Y), X = 1.
