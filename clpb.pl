@@ -1,9 +1,9 @@
-/*  CLP(B) based on binary decision diagrams.
-    Preliminary version.
+/*  Part of SWI-Prolog
 
     Author:        Markus Triska
     E-mail:        triska@gmx.at
-    Written:       August 2014
+    WWW:           http://www.swi-prolog.org
+    Copyright (C): 2014 Markus Triska
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -27,6 +27,9 @@
     the GNU General Public License.
 */
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   CLP(B): Constraint Logic Programming over Boolean variables.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- module(clpb, [
                  op(300, fy, ~),
@@ -378,18 +381,19 @@ sat_bdd(Sat, BDD) :-
 
 sat_bdd(i(I), I) --> !.
 sat_bdd(v(V), Node) --> !, make_node(V, 0, 1, Node).
-sat_bdd(v(V)^Sat, Node) --> !,
-        sat_bdd(Sat, BDD),
-        { var_index(V, Index),
-          bdd_restriction(BDD, Index, 0, NA),
-          bdd_restriction(BDD, Index, 1, NB) },
-        apply(+, NA, NB, Node).
+sat_bdd(v(V)^Sat, Node) --> !, sat_bdd(Sat, BDD), existential(V, BDD, Node).
 sat_bdd(card(Is,Fs), Node) --> !, counter_network(Is, Fs, Node).
 sat_bdd(Sat, Node) -->
         { Sat =.. [F,A,B] },
         sat_bdd(A, NA),
         sat_bdd(B, NB),
         apply(F, NA, NB, Node).
+
+existential(V, BDD, Node) -->
+        { var_index(V, Index),
+          bdd_restriction(BDD, Index, 0, NA),
+          bdd_restriction(BDD, Index, 1, NB) },
+        apply(+, NA, NB, Node).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Counter network for card(Is,Fs).
@@ -407,8 +411,13 @@ counter_network(Cs, Fs, Node) -->
         { maplist(var_index_root, Vars, _, Roots),
           maplist(=(Root), Roots),
           put_attr(Root, bdd, card(Cs,Fs)-Node) },
-        eq_and(Vars, Fs, Node0, Node).
+        eq_and(Vars, Fs, Node0, Node1),
+        all_existential(Vars, Node1, Node).
 
+all_existential([], Node, Node) --> [].
+all_existential([V|Vs], Node0, Node) -->
+        existential(V, Node0, Node1),
+        all_existential(Vs, Node1, Node).
 
 eq_and([], [], Node, Node) --> [].
 eq_and([X|Xs], [Y|Ys], Node0, Node) -->
