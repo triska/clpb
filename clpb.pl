@@ -50,7 +50,7 @@ CLP(B), Constraint Logic Programming over Boolean Variables. It can be
 used to model and solve combinatorial problems such as circuit
 verification, graph colouring and allocation tasks.
 
-The implementation is based on ordered and reduced Binary Decision
+The implementation is based on reduced and ordered Binary Decision
 Diagrams (BDDs).
 
 
@@ -80,9 +80,9 @@ where _Expr_ again denotes a Boolean expression.
 The interface predicates of CLP(B) are:
 
     * sat(+Expr)
-      True iff Expr is satisfiable.
+      True iff the Boolean expression Expr is satisfiable.
 
-    * taut(+Expr, T)
+    * taut(+Expr, -T)
       If Expr is a tautology with respect to the posted constraints, succeeds
       with *T = 1*. If Expr cannot be satisfied, succeeds with *T = 0*.
       Otherwise, it fails.
@@ -106,6 +106,10 @@ X = Y, Y = 1.
 ?- sat(X * ~X).
 false.
 
+?- taut(X * ~X, T).
+T = 0,
+sat(X=:=X).
+
 ?- sat(X^Y^(X+Y)).
 sat(X=:=X),
 sat(Y=:=Y).
@@ -118,13 +122,17 @@ X = Y, Y = Z, Z = 1.
 ?- sat(X =< Y), sat(Y =< Z), taut(X =< Z, T).
 T = 1,
 sat(X=:=X),
-node(63): (v_i(X, 22)->node(62);node(61)),
-node(61): (v_i(Y, 23)->node(60);true),
-node(60): (v_i(Z, 24)->true;false),
-node(62): (v_i(Y, 23)->node(60);false),
+node(54)- (X->node(53);node(52)),
+node(52)- (Y->node(51);true),
+node(51)- (Z->true;false),
+node(53)- (Y->node(51);false),
 sat(Y=:=Y),
 sat(Z=:=Z).
 ==
+
+The pending residual goals constrain remaining variables to Boolean
+expressions, and encode a decision diagram that determines the query's
+truth value when further constraints are added.
 
 @author Markus Triska
 */
@@ -151,11 +159,17 @@ is_sat(A>=B)  :- is_sat(A), is_sat(B).
 is_sat(A<B)   :- is_sat(A), is_sat(B).
 is_sat(A>B)   :- is_sat(A), is_sat(B).
 is_sat(X^F)   :- var(X), is_sat(F).
+is_sat(card(Is,Fs)) :-
+        must_be(list(ground), Is),
+        must_be(list, Fs),
+        maplist(is_sat, Fs).
 
 % wrap variables with v(...) and integers with i(...)
 sat_nondefaulty(V, v(V)) :- var(V), !.
 sat_nondefaulty(I, i(I)) :- integer(I), !.
 sat_nondefaulty(~A0, ~A) :- !, sat_nondefaulty(A0, A).
+sat_nondefaulty(card(Is,Fs0), card(Is,Fs)) :- !,
+        maplist(sat_nondefaulty, Fs0, Fs).
 sat_nondefaulty(S0, S) :-
         S0 =.. [F,X0,Y0],
         sat_nondefaulty(X0, X),
@@ -173,6 +187,8 @@ sat_rewrite(P0*Q0, P*Q) :- sat_rewrite(P0, P), sat_rewrite(Q0, Q).
 sat_rewrite(P0+Q0, P+Q) :- sat_rewrite(P0, P), sat_rewrite(Q0, Q).
 sat_rewrite(P0#Q0, P#Q) :- sat_rewrite(P0, P), sat_rewrite(Q0, Q).
 sat_rewrite(X^F0, X^F)  :- sat_rewrite(F0, F).
+sat_rewrite(card(Is,Fs0), card(Is,Fs)) :-
+        maplist(sat_rewrite, Fs0, Fs).
 % synonyms
 sat_rewrite(~P, R)      :- sat_rewrite(i(1) # P, R).
 sat_rewrite(P =:= Q, R) :- sat_rewrite(~P # Q, R).
@@ -185,8 +201,10 @@ sat_rewrite(P > Q, R)   :- sat_rewrite(Q < P, R).
 
 must_be_sat(Sat) :-
         (   is_sat(Sat) -> true
-        ;   domain_error(boolexpr, Sat)
+        ;   no_truth_value(Sat)
         ).
+
+no_truth_value(Term) :- domain_error(clpb_expr, Term).
 
 parse_sat(Sat0, Sat) :-
         must_be_sat(Sat0),
@@ -200,10 +218,10 @@ sat_roots(Sat, Roots) :-
         maplist(var_index_root, Vs, _, Roots0),
         term_variables(Roots0, Roots).
 
-%% sat(Sat) is semidet.
+%% sat(+Expr) is semidet.
 %
-% States the constraint that Sat be a satisfiable Boolean expression.
-% Fails if Sat cannot be satisfied.
+% States the constraint that Expr be a satisfiable Boolean expression.
+% Fails if Expr cannot be satisfied.
 
 sat(Sat0) :-
         parse_sat(Sat0, Sat),
@@ -225,11 +243,11 @@ root_and(Root, Sat0-BDD0, Sat-BDD) :-
             BDD = BDD0
         ).
 
-%% taut(+Sat, ?T) is semidet
+%% taut(+Expr, -T) is semidet
 %
-% Succeeds with T = 0 if Sat cannot be satisfied, and with T = 1 if
-% Sat is always true with respect to the current constraints. Fails
-% otherwise.
+% Succeeds with T = 0 if the Boolean expression Expr cannot be
+% satisfied, and with T = 1 if Expr is always true with respect to the
+% current constraints. Fails otherwise.
 
 taut(Sat0, Truth) :-
         parse_sat(Sat0, Sat),
@@ -285,6 +303,20 @@ bool_op(#, 0, 0, 0).
 bool_op(#, 0, 1, 1).
 bool_op(#, 1, 0, 1).
 bool_op(#, 1, 1, 0).
+
+node_id(Node, ID) :-
+        (   integer(Node) ->
+            (   Node =:= 0 -> ID = false
+            ;   Node =:= 1 -> ID = true
+            ;   no_truth_value(Node)
+            )
+        ;   get_attr(Node, id, ID0),
+            ID = node(ID0)
+        ).
+
+node_var_low_high(Node, Var, Low, High) :-
+        get_attr(Node, node, node(Var,Low,High)).
+
 
 make_node(Var, Low, High, Node) -->
         state(H0-G0, H-G0),
@@ -345,45 +377,68 @@ sat_bdd(Sat, BDD) :-
         phrase(sat_bdd(Sat, BDD), [H0-G0], _).
 
 sat_bdd(i(I), I) --> !.
-sat_bdd(v(V), Node) --> !,
-        (   { integer(V) } -> sat_bdd(i(V), Node)
-        ;   make_node(V, 0, 1, Node)
-        ).
+sat_bdd(v(V), Node) --> !, make_node(V, 0, 1, Node).
 sat_bdd(v(V)^Sat, Node) --> !,
         sat_bdd(Sat, BDD),
         { var_index(V, Index),
           bdd_restriction(BDD, Index, 0, NA),
           bdd_restriction(BDD, Index, 1, NB) },
         apply(+, NA, NB, Node).
+sat_bdd(card(Is,Fs), Node) --> !, counter_network(Is, Fs, Node).
 sat_bdd(Sat, Node) -->
         { Sat =.. [F,A,B] },
         sat_bdd(A, NA),
         sat_bdd(B, NB),
         apply(F, NA, NB, Node).
 
-node_id(Node, ID) :-
-        (   integer(Node) ->
-            (   Node =:= 0 -> ID = false
-            ;   Node =:= 1 -> ID = true
-            ;   domain_error(boolean, Node)
-            )
-        ;   get_attr(Node, id, ID0),
-            ID = node(ID0)
-        ).
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Counter network for card(Is,Fs).
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-node_var_low_high(Node, Var, Low, High) :-
-        get_attr(Node, node, node(Var,Low,High)).
+counter_network(Cs, Fs, Node) -->
+        { same_length([_|Fs], Indicators),
+          fill_indicators(Indicators, 0, Cs),
+          same_length(Fs, Vars0),
+          % enumerate variables in reverse order so that they appear
+          % in the correct order in the resulting BDD
+          maplist(enumerate_variable, Vars0),
+          reverse(Vars0, Vars) },
+        counter_network(Fs, Indicators, Vars, Node0),
+        { maplist(var_index_root, Vars, _, Roots),
+          maplist(=(Root), Roots),
+          put_attr(Root, bdd, card(Cs,Fs)-Node) },
+        eq_and(Vars, Fs, Node0, Node).
 
-node_varindex(Node, VI) :-
-        node_var_low_high(Node, V, _, _),
-        var_index(V, VI).
 
-var_less_than(NA, NB) :-
-        (   integer(NB) -> true
-        ;   node_varindex(NA, VAI),
-            node_varindex(NB, VBI),
-            VAI < VBI
-        ).
+eq_and([], [], Node, Node) --> [].
+eq_and([X|Xs], [Y|Ys], Node0, Node) -->
+        { sat_rewrite(v(X) =:= Y, Sat) },
+        sat_bdd(Sat, B),
+        apply(*, B, Node0, Node1),
+        eq_and(Xs, Ys, Node1, Node).
+
+counter_network([], [Node], [], Node) --> [].
+counter_network([_|Fs], Is0, [Var|Vars], Node) -->
+        indicators_pairing(Is0, Var, Is1),
+        counter_network(Fs, Is1, Vars, Node).
+
+indicators_pairing([], _, []) --> [].
+indicators_pairing([I|Is], Var, Nodes) -->
+        indicators_pairing_(Is, I, Var, Nodes).
+
+indicators_pairing_([], _, _, []) --> [].
+indicators_pairing_([I|Is], Prev, Var, [Node|Nodes]) -->
+        make_node(Var, Prev, I, Node),
+        indicators_pairing_(Is, I, Var, Nodes).
+
+fill_indicators([], _, _).
+fill_indicators([I|Is], Index0, Cs) :-
+        (   memberchk(Index0, Cs) -> I = 1
+        ;   member(A-B, Cs), between(A, B, Index0) -> I = 1
+        ;   I = 0
+        ),
+        Index1 is Index0 + 1,
+        fill_indicators(Is, Index1, Cs).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    apply//4. Uses memoization to improve performance.
@@ -421,6 +476,21 @@ apply_(F, NA, NB, Node) --> % NB > NA
         make_node(VB, Low, High, Node).
 
 
+node_varindex(Node, VI) :-
+        node_var_low_high(Node, V, _, _),
+        var_index(V, VI).
+
+var_less_than(NA, NB) :-
+        (   integer(NB) -> true
+        ;   node_varindex(NA, VAI),
+            node_varindex(NB, VBI),
+            VAI < VBI
+        ).
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Unification. X = Expr is equivalent to sat(X =:= Expr).
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 attr_unify_hook(index_root(I,Root), Other) :-
         (   integer(Other) ->
             (   between(0, 1, Other) ->
@@ -428,7 +498,7 @@ attr_unify_hook(index_root(I,Root), Other) :-
                 bdd_restriction(BDD0, I, Other, BDD),
                 put_attr(Root, bdd, Sat-BDD),
                 satisfiable_bdd(BDD)
-            ;   domain_error(boolean, Other)
+            ;   no_truth_value(Other)
             )
         ;   parse_sat(Other, OtherSat),
             get_attr(Root, bdd, Sat0-_),
@@ -460,7 +530,7 @@ is_bdd(BDD) :-
               is_ok,
               true).
 
-ite_ground(_:(v_i(_,I) -> HID ; LID), t(I,HID,LID)).
+ite_ground(_-(V -> HID ; LID), t(I,HID,LID)) :- var_index(V, I).
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -479,7 +549,7 @@ bdd_restriction_(Node, VI, Value, Res) -->
             (   { integer(Var) } ->
                 (   { Var =:= 0 } -> bdd_restriction_(Low, VI, Value, Res)
                 ;   { Var =:= 1 } -> bdd_restriction_(High, VI, Value, Res)
-                ;   { domain_error(boolean, Var) }
+                ;   { no_truth_value(Var) }
                 )
             ;   (   { var_index(Var, I0),
                       node_id(Node, ID) },
@@ -488,7 +558,6 @@ bdd_restriction_(Node, VI, Value, Res) -->
                             bdd_restriction_(Low, VI, Value, Res)
                         ;   { Value =:= 1 } ->
                             bdd_restriction_(High, VI, Value, Res)
-                        ;   { domain_error(boolean, Value) }
                         )
                     ;   { I0 > VI } -> { Res = Node }
                     ;   state(_-G0), { get_assoc(ID, G0, Res) } -> []
@@ -526,11 +595,10 @@ bdd_ite_(Node) -->
         (   { integer(Node) ;  get_attr(Node, visited, true) } -> []
         ;   { node_id(Node, ID) } ->
             { node_var_low_high(Node, Var, Low, High),
-              var_index(Var, Index),
               put_attr(Node, visited, true),
               node_id(High, HID),
               node_id(Low, LID) },
-            [ID : (v_i(Var,Index) -> HID ; LID )],
+            [ID-(Var -> HID ; LID )],
             bdd_ite_(Low),
             bdd_ite_(High)
         ;   []
