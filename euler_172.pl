@@ -15,14 +15,13 @@ len_num(L, N) :-
         maplist(length_list(10), Digits),
         Digits = [First|_],
         First = [0|_],          % no leading zero
-        maplist(card([1]), Digits),
         transpose(Digits, DigitsT),
+        % the order of the following 2 constraints has a huge impact
+        % on performance!
         maplist(card([0,1,2,3]), DigitsT),
+        maplist(card([1]), Digits),
         append(Digits, Vs),
-        foldl(or, Vs, 1, Or),
-        sat_count(Or, N).
-
-or(A, B, B+A).
+        sat_count(+[1|Vs], N).
 
 card(C, Ls) :- sat(card(C, Ls)).
 
@@ -38,17 +37,18 @@ run :-
         false.
 
 %?- run.
-%@ % 9 inferences, 0.000 CPU in 0.000 seconds (77% CPU, 692308 Lips)
+%@ % 9 inferences, 0.000 CPU in 0.000 seconds (73% CPU, 642857 Lips)
 %@ len_num(1, 9).
-%@ % 363,166 inferences, 0.091 CPU in 0.093 seconds (98% CPU, 3978070 Lips)
+%@ % 130,209 inferences, 0.041 CPU in 0.058 seconds (72% CPU, 3161103 Lips)
 %@ len_num(2, 90).
-%@ % 546,422 inferences, 0.097 CPU in 0.097 seconds (100% CPU, 5654669 Lips)
+%@ % 33,481 inferences, 0.006 CPU in 0.006 seconds (99% CPU, 5549644 Lips)
 %@ len_num(3, 900).
-%@ % 884,158 inferences, 0.159 CPU in 0.160 seconds (100% CPU, 5546579 Lips)
+%@ % 100,992 inferences, 0.019 CPU in 0.033 seconds (58% CPU, 5261096 Lips)
 %@ len_num(4, 8991).
-%@ % 1,545,390 inferences, 0.276 CPU in 0.277 seconds (100% CPU, 5597880 Lips)
+%@ % 364,252 inferences, 0.069 CPU in 0.108 seconds (64% CPU, 5292514 Lips)
 %@ len_num(5, 89586).
-%@ % 3,224,186 inferences, 0.598 CPU in 0.601 seconds (100% CPU, 5390389 Lips)
+%@ % 1,243,083 inferences, 0.226 CPU in 0.273 seconds (83% CPU, 5490504 Lips)
 %@ len_num(6, 888570).
-%@ % 8,698,649 inferences, 1.537 CPU in 1.545 seconds (99% CPU, 5660084 Lips)
+%@ % 3,805,379 inferences, 0.687 CPU in 0.710 seconds (97% CPU, 5539488 Lips)
 %@ len_num(7, 8754480).
+%@ % 10,804,441 inferences, 1.998 CPU in 2.333 seconds (86% CPU, 5408546 Lips)
