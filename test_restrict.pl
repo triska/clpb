@@ -1,5 +1,7 @@
 :- use_module(clpb).
 
+:- set_prolog_flag(clpb_validation, true).
+
 sat( _)  --> [].
 sat(X*Y) --> [_], sat(X), sat(Y).
 sat(X+Y) --> [_], sat(X), sat(Y).
