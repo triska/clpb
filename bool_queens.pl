@@ -25,12 +25,10 @@ run :-
         length(Qs, N),
         maplist(length_(N), Qs),
         append(Qs, Vs),
-        % foldl(or, Vs, 1, Or),
-        % sat(Or), % force variables into same BDD
+        % sat(+[1|Vs]), % force variables into same BDD
         n_queens(N, Qs),
         append(Qs, Vs),
-        foldl(or, Vs, 1, Or),
-        sat_count(Or, C),
+        sat_count(+[1|Vs], C),
         statistics(cputime, T1),
         Time is T1 - T0,
         format("|queens(~w)| = ~w  ~25| after ~2fs\n", [N,C,Time]),
@@ -45,27 +43,19 @@ n_queens(N, Qs) :-
         maplist(one_in_row, TQs),
         maplist(row, TQs),
         phrase(diagonals(Qs, 1, 1, N), Ands),
-        foldl(and, Ands, 1, And),
-        sat(And).
+        sat(*(Ands)).
 
-one_in_row(Row) :-
-        foldl(or, Row, 0, Or),
-        sat(Or).
+one_in_row(Row) :- sat(+Row).
 
 row(Row) :-
         phrase(not_same_row(Row), Ands),
-        foldl(and, Ands, 1, And),
-        sat(And).
+        sat(*(Ands)).
 
 
 not_same_row([]) --> [].
 not_same_row([Q|Qs]) -->
         not_same_row_(Qs, Q),
         not_same_row(Qs).
-
-or(A, B, B + A).
-
-and(A, B, B * A).
 
 not_same_row_([], _) --> [].
 not_same_row_([L|Ls], Q) -->
