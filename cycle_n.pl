@@ -31,37 +31,30 @@ edge_(_, N1, X, Y) :-
    IND(X) = not OR_(u->v){ x_u /\ x_v }
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-independent(~ Or, Nodes, Vars, Assoc) :-
+independent(~ +(Ands), Nodes, Vars, Assoc) :-
         findall(A-B, edge(A, B), Edges),
         pairs_keys_values(Edges, Ks, Vs),
         append(Ks, Vs, Ns0),
         sort(Ns0, Nodes),
         pairs_keys_values(Pairs, Nodes, Vars),
         list_to_assoc(Pairs, Assoc),
-        maplist(edge_and(Assoc), Edges, Ands),
-        foldl(or, Ands, 0, Or).
-
-or(B, A, A+B).
+        maplist(edge_and(Assoc), Edges, Ands).
 
 
 edge_and(Assoc, A0-B0, A*B) :-
         get_assoc(A0, Assoc, A),
         get_assoc(B0, Assoc, B).
 
-kernel(Nodes, Vars, Ind*And) :-
+kernel(Nodes, Vars, Ind* *(Ors)) :-
         independent(Ind, Nodes, Vars, Assoc),
-        maplist(node_or(Assoc), Nodes, Ors),
-        foldl(and, Ors, 1, And).
+        maplist(node_or(Assoc), Nodes, Ors).
 
-and(X, Y, Y * X).
-
-node_or(Assoc, Node, Var + Or) :-
+node_or(Assoc, Node, Var + +(Vars)) :-
         get_assoc(Node, Assoc, Var),
         findall(U-Node, edge(U, Node), Edges0),
         sort(Edges0, Edges),
         pairs_keys(Edges, Us),
-        maplist(u_to_var(Assoc), Us, Vars),
-        foldl(or, Vars, 0, Or).
+        maplist(u_to_var(Assoc), Us, Vars).
 
 u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 
@@ -69,12 +62,11 @@ u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 %@ Sat = ~ (... + ... + ... * ... + _G117*_G118+_G118*_G117+_G118*_G119+_G119*_G118+_G20*_G119+_G119*_G20)* (... * ... * (... + ...)* (_G113+ (... + ...))* (_G114+ (... + ... + _G115))* (_G115+ (0+_G114+_G116))* (_G116+ (0+_G115+_G117))* (_G117+ (0+_G116+_G118))* (_G118+ (0+_G117+_G119))* (_G119+ (0+_G20+_G118))),
 %@ C = 1630580875002.
 
-%?- independent(I, Nodes, Vars), sat(I), labeling(Vars), writeln(Vars), false.
-
-%?- kernel(Ns, Vs), labeling(Vs), writeln(Vs), false.
+%?- independent(I, Nodes, Vars, _), sat(I), labeling(Vars), writeln(Vars), false.
 
 run :-
-        kernel(_, Vs, _),
+        kernel(_, Vs, K),
+        sat(K),
         labeling(Vs),
         writeln(Vs),
         false.
