@@ -1,5 +1,6 @@
 :- use_module(clpb).
 
+:- set_prolog_flag(clpb_validation, true).
 
 sat(X, Y, X=:=Y).
 sat(X, Y, X#Y).
