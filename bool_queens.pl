@@ -4,6 +4,8 @@
 %?- run.
 %@ |queens(0)| = 1           after 0.00s
 %@ |queens(1)| = 1           after 0.00s
+%@ |queens(2)| = 0           after 0.00s
+%@ |queens(3)| = 0           after 0.01s
 %@ |queens(4)| = 2           after 0.04s
 %@ |queens(5)| = 10          after 0.25s
 %@ |queens(6)| = 4           after 1.02s
@@ -26,9 +28,10 @@ run :-
         maplist(length_(N), Qs),
         append(Qs, Vs),
         % sat(+[1|Vs]), % force variables into same BDD
-        n_queens(N, Qs),
-        append(Qs, Vs),
-        sat_count(+[1|Vs], C),
+        (   n_queens(N, Qs) ->
+            sat_count(+[1|Vs], C)
+        ;   C = 0
+        ),
         statistics(cputime, T1),
         Time is T1 - T0,
         format("|queens(~w)| = ~w  ~25| after ~2fs\n", [N,C,Time]),
@@ -40,8 +43,8 @@ n_queens(N, Qs) :-
         maplist(row, Qs),
         transpose(Qs, TQs),
         maplist(row, TQs),
-        phrase(diagonals(Qs, 1, 1, N), Ands),
-        maplist(at_most_one, Ands).
+        phrase(diagonals(Qs, 1, 1, N), Ds),
+        maplist(at_most_one, Ds).
 
 at_most_one(Ls) :- sat(card([0,1], Ls)).
 
