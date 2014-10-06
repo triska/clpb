@@ -6,7 +6,7 @@
    that no digit occurs more than three times in n?
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-:- use_module(clpb).
+:- use_module(library(clpb)).
 :- use_module(library(clpfd)).
 
 
