@@ -40,6 +40,14 @@ run :-
 %@ 10=89
 %@ false.
 
+tile([[1,1]]).
+
+tile([[1],
+      [1]]).
+
+% tile([[1,1],
+%       [1,0]]).
+
 
 dominos(M, N, Vs, *(Cs)) :-
         matrix(M, N, Ms),
@@ -60,25 +68,35 @@ key_one(1-_).
 
 list_first_rest([L|Ls], L, Ls).
 
+
 matrix(M, N, Ms) :-
         Squares is M*N,
         length(Ls, Squares),
         findall(Ls, line(N,Ls), Ms).
 
+
 line(N, Ls) :-
-        line_(N, Ls, As, Bs),
-        all_zero(As, Bs).
+        tile(Ts),
+        length(Ls, Max),
+        phrase((zeros(0,P0),tile_(Ts,N,Max,P0,P1),zeros(P1,_)), Ls).
 
-line_(N, Ls, As, Bs) :-
-        append(As, [1,1|Bs], Ls),
-        length(As, LAs),
-        LAs mod N =\= N - 1.
-line_(N, Ls, As, Bs) :-
-        LFills is N - 1,
-        length(Fills, LFills),
-        all_zero(Fills, []),
-        append([As,[1],Fills,[1],Bs], Ls).
+tile_([], _, _, P, P) --> [].
+tile_([T|Ts], N, Max, P0, P) -->
+        tile_part(T, N, P0, P1),
+        { (P1 - 1) mod N >= P0 mod N,
+          P2 is min(P0 + N, Max) },
+        zeros(P1, P2),
+        tile_(Ts, N, Max, P2, P).
 
-all_zero(As, Bs) :- maplist(maplist(=(0)), [As,Bs]).
+tile_part([], _, P, P) --> [].
+tile_part([L|Ls], N, P0, P) -->
+        [L],
+        { P1 is P0 + 1 },
+        tile_part(Ls, N, P1, P).
+
+zeros(P, P) --> [].
+zeros(P0, P) --> [0],
+        { P1 is P0 + 1 },
+        zeros(P1, P).
 
 %?- matrix(4, 4, Ms), maplist(writeln, Ms).
