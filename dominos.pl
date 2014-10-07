@@ -6,23 +6,11 @@
 
 
 %?- run.
-%@ 2=2
-%@ % 3,641 inferences, 0.001 CPU in 0.026 seconds (4% CPU, 3256708 Lips)
-%@ 4=36
-%@ % 172,431 inferences, 0.036 CPU in 0.036 seconds (98% CPU, 4827566 Lips)
-%@ 6=6728
-%@ % 3,765,761 inferences, 0.760 CPU in 0.783 seconds (97% CPU, 4951880 Lips)
-%@ 8=12988816
-%@ % 52,794,655 inferences, 11.935 CPU in 12.219 seconds (98% CPU, 4423627 Lips)
-%@ 10=258584046368
-%@ % 565,135,016 inferences, 131.250 CPU in 144.162 seconds (91% CPU, 4305789 Lips)
 
 run :-
-        length(_, N0),
-        N is N0 * 2,
-        N > 0,
-        time((dominos(N, N, _Vs, Conj), sat_count(Conj, Count))),
-        writeln(N=Count),
+        length(_, N),
+        time((dominos(N, N, _Vs, Conj), sat_count(Conj, Count),
+              portray_clause(N=Count))),
         false.
 
 %?- dominos(8, 8, Vs, Conj), sat(Conj).
@@ -40,13 +28,43 @@ run :-
 %@ 10=89
 %@ false.
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Monomino
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+%tile([[1]]).
+
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Dominos
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 tile([[1,1]]).
 
 tile([[1],
       [1]]).
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Trominos
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 % tile([[1,1],
 %       [1,0]]).
+
+% tile([[1,0],
+%       [1,1]]).
+
+% tile([[0,1],
+%       [1,1]]).
+
+% tile([[1,1],
+%       [0,1]]).
+
+% tile([[1,1,1]]).
+
+% tile([[1],
+%       [1],
+%       [1]]).
 
 
 dominos(M, N, Vs, *(Cs)) :-
