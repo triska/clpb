@@ -1,5 +1,4 @@
 /*
-
     Author:        Markus Triska
     E-mail:        triska@gmx.at
     Copyright (C): 2014, 2015 Markus Triska
@@ -306,15 +305,24 @@ unsatisfiable_conjunction(Sat, Ands) :-
         bdd_and(BDD, Ands, B),
         B == 0.
 
-satisfiable_bdd(BDD) :- BDD \== 0.
-        % (   BDD == 0 -> false
-        % ;   BDD == 1 -> true
-        % ;   node_var_low_high(BDD, Var, Low, High),
-        %     (   Low == 0 -> Var = 1
-        %     ;   High == 0 -> Var = 0
-        %     ;   true
-        %     )
-        % ).
+satisfiable_bdd(BDD) :-
+        (   BDD == 0 -> false
+        ;   not_occurring_are_zero(BDD)
+        ).
+
+not_occurring_are_zero(BDD) :-
+        all_variables_in_index_order(AllVs),
+        bdd_variables(BDD, Vs),
+        maplist(put_visited, Vs),
+        maplist(not_visited_zero, AllVs, _Zs),
+        maplist(unvisit, Vs).
+        % AllVs = Zs.  % unification not yet supported
+
+not_visited_zero(Var, Zero) :-
+        (   is_visited(Var) -> Zero = _Any
+        ;   Var \== 1,
+            Zero = 0
+        ).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Node management. Always use an existing node, if there is one.
@@ -521,34 +529,78 @@ state(S0, S), [S] --> [S0].
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Unification. X = Expr is equivalent to sat(X =:= Expr).
 
-   We need a more general mechanism for unification of attributed variables.
-   For example, "?- sat(A + B), sat(A =:= A + 1)." should be equivalent to
-   "?- sat(A + B), A = A + 1.". Unification filters should be able to
-   reason about terms before they are unified with anything.
+   Current limitation:
+   ===================
+
+   The current interface of attributed variables is not general enough
+   to express what we need. See library(clpb) for more information.
+
+   For ZDDs, SWI's interface is even more problematic, because
+   simultaneous unifications are hard to reason about.
+
+   Consider for example:
+
+      ?- zdd_set_vars([A,B]), sat(A + ~B).
+
+   yielding the ZDD:
+
+         node(6)- (A->node(0);true),
+         node(0)- (B->true;true),
+
+   If we unify A with 0, then the ZDD becomes 1. Variables that do not
+   occur in the ZDD, in particular B, must of course be 0.
+
+   However, if we have a simultaneous unification, as in:
+
+      ?- zdd_set_vars([A,B]), sat(A + ~B), [A,B]=[0,1].
+
+   then we can no longer explicitly collect the "variables that do not
+   occur in the ZDD", because they are no longer variables.
+
+   Thus, we would have to store the branching variable *and* its
+   ground index in nodes, using more memory.
+
+   Therefore, unification of variables is not yet fully implemented.
+
+   If you have no simultaneous unifications, you can comment out the
+   exception instantiation_not_yet_supported and hence use labeling/1.
+
+   Aliasing is definitely not supported.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 attr_unify_hook(index_root(I,Root), Other) :-
-        throw(not-yet-supported),
         (   integer(Other) ->
+            throw(instantiation_not_supported),
             (   between(0, 1, Other) ->
-                root_get_formula_bdd(Root, Sat, BDD0),
-                bdd_restriction(BDD0, I, Other, BDD),
-                root_put_formula_bdd(Root, Sat, BDD),
-                satisfiable_bdd(BDD)
+                restrict_in_all_bdds(I, Root, Other)
             ;   no_truth_value(Other)
             )
-        ;   parse_sat(Other, OtherSat),
+        ;   throw(aliasing_not_supported),
+            parse_sat(Other, OtherSat),
             root_get_formula_bdd(Root, Sat0, _),
             Sat = Sat0*OtherSat,
             sat_roots(Sat, Roots),
             maplist(root_rebuild_bdd, Roots),
-            roots_and(Roots, 1-1, And-BDD1),
+            taut(True),
+            roots_and(Roots, 1-True, And-BDD1),
             maplist(del_bdd, Roots),
             maplist(=(NewRoot), Roots),
             root_put_formula_bdd(NewRoot, And, BDD1),
             is_bdd(BDD1),
             satisfiable_bdd(BDD1)
         ).
+
+restrict_in_all_bdds(VI, Root, Other) :-
+        all_variables_in_index_order(Vs),
+        maplist(var_index_root, Vs, _, Roots0),
+        term_variables([Root|Roots0], Roots),
+        maplist(restrict_vi(VI,Other), Roots, BDDs),
+        maplist(satisfiable_bdd, BDDs).
+
+restrict_vi(VI, Other, Root, BDD) :-
+        root_get_formula_bdd(Root, Sat, BDD0),
+        bdd_restriction(BDD0, VI, Other, BDD),
+        root_put_formula_bdd(Root, Sat, BDD).
 
 root_rebuild_bdd(Root) :-
         (   root_get_formula_bdd(Root, F0, _) ->
@@ -633,9 +685,11 @@ nodes_variables(Nodes, Vs) :-
 nodes_variables_([]) --> [].
 nodes_variables_([Node|Nodes]) -->
         { node_var_low_high(Node, Var, _, _) },
-        (   { is_visited(Var) } -> []
-        ;   { put_visited(Var) },
-            [Var]
+        (   { integer(Var) } -> []
+        ;   (   { is_visited(Var) } -> []
+            ;   { put_visited(Var) },
+                [Var]
+            )
         ),
         nodes_variables_(Nodes).
 
@@ -806,7 +860,8 @@ clpb_next_id(Var, ID) :-
 zdd_set_vars(Vars) :-
         must_be(list(var), Vars),
         b_setval('$clpb_vars', Vars),
-        maplist(enumerate_variable, Vars).
+        maplist(enumerate_variable, Vars),
+        sat(+[1|Vars]).
 
 taut(Node) :-
         all_variables_in_index_order(Vars),
@@ -831,8 +886,7 @@ projection_([Var|Vars], V, Proj) :-
 
 all_variables_in_index_order(Vars) :-
         b_getval('$clpb_vars', Vars0),
-        include(var, Vars0, Vars1),
-        variables_in_index_order(Vars1, Vars).
+        include(var, Vars0, Vars).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Sandbox declarations
