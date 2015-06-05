@@ -807,6 +807,40 @@ bdd_count(Node, Count) :-
         ).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   You must enable unification if you want to generate random solutions.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+random_solution(Seed, Vars) :-
+        must_be(list, Vars),
+        set_random(seed(Seed)),
+        (   ground(Vars) -> true
+        ;   catch((sat(+[1|Vars]), % capture all variables with a single BDD
+                   once((member(Var, Vars),var(Var))),
+                   var_index_root(Var, _, Root),
+                   root_get_formula_bdd(Root, _, BDD),
+                   phrase(random_bindings(BDD), Bs),
+                   maplist(del_attrs, Vars),
+                   % reset all attribute modifications
+                   throw(randsol(Vars, Bs))),
+                  randsol(Vars, Bs),
+                  true),
+            maplist(call, Bs),
+            % set remaining variables to 0
+            include(var, Vars, Remaining),
+            maplist(=(0), Remaining)
+        ).
+
+random_bindings(Node) --> { Node == 1 }, !.
+random_bindings(Node) -->
+        { node_var_low_high(Node, Var, Low, High),
+          bdd_count(Node, Total),
+          bdd_count(Low, LCount) },
+        (   { maybe(LCount, Total) } ->
+            [Var=0], random_bindings(Low)
+        ;   [Var=1], random_bindings(High)
+        ).
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Projection to residual goals.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
