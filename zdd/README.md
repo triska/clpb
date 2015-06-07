@@ -17,9 +17,10 @@ Sample solution:
 
 ![Polyomino covering](polyomino_covering.png)
 
-[clpb.pl] is mostly a drop-in-replacement for the version that ships
-with SWI-Prolog, with the following important difference: Before using
-`sat/1`, you *must* call `zdd_set_vars/1` with a list of all Boolean
-variables that occur in your model.
+The ZDD-based version ([clpb.pl](clpb.pl)) is mostly a
+drop-in-replacement for the version that ships with SWI-Prolog, with
+the following important difference: Before using `sat/1`, you *must*
+call `zdd_set_vars/1` with a list of all Boolean variables that occur
+in your model.
 
 Please see the source file for more information.
