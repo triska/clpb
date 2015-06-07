@@ -21,13 +21,13 @@
 
 run :-
         length(_, N),
-        time((polyominoes(N, N, Vs, Conj),
+        time((polyominos(N, N, Vs, Conj),
               zdd_set_vars(Vs),
               sat_count(Conj, Count),
               portray_clause(N=Count))),
         false.
 
-%?- between(1,10, Cols), polyominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
+%?- between(1,10, Cols), polyominos(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Monomino
@@ -68,7 +68,7 @@ tile([[1],
       [1]]).
 
 
-polyominoes(M, N, Vs, *(Cs)) :-
+polyominos(M, N, Vs, *(Cs)) :-
         matrix(M, N, Ms),
         same_length(Ms, Vs),
         Ms = [First|_],
