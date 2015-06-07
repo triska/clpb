@@ -8,8 +8,7 @@ Please see http://www.github.com/SWI-Prolog for the latest version.
 
 
 
-This repository is still useful to keep track of test cases and usage
-examples for the library.
+This repository contains usage examples and tests of the library.
 
 There is also a limited alternative version using ZDDs. Please see the
 [zdd](zdd) directory for more information. Try the ZDD-based version

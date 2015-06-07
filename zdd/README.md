@@ -1,8 +1,8 @@
 
 This is a ZDD-based variant of `library(clpb)`.
 
-ZDDs can save a lot of memory in situations where solutions have most
-Boolean variables equal to 0. This is the case in many covering tasks.
+ZDDs can save a lot of memory when most Boolean variables are equal
+to&nbsp;0 in solutions. This is the case in many covering tasks.
 
 For example, this variant of the library can be used to more
 space-efficiently compute that there are
