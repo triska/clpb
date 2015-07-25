@@ -92,8 +92,7 @@ matrix(M, N, Ms) :-
         Squares is M*N,
         length(Ls, Squares),
         findall(Ls, line(N,Ls), Ms0),
-        sort(Ms0, Ms1),
-        reverse(Ms1, Ms).
+        sort(Ms0, Ms).
 
 
 line(N, Ls) :-
