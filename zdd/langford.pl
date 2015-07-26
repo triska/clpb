@@ -36,16 +36,13 @@ langford(N, Vs, *(Sats)) :-
 
 sats([], _) --> [].
 sats([Col|Cols], Vs0) -->
-        { phrase(column_selection(Col, Vs0), Vs) },
+        { pairs_keys_values(Pairs0, Col, Vs0),
+          include(key_one, Pairs0, Pairs),
+          pairs_values(Pairs, Vs) },
         [card([1],Vs)],
         sats(Cols, Vs0).
 
-column_selection([], []) --> [].
-column_selection([C|Cs], [V|Vs]) -->
-        (   { C =:= 1 } -> [V]
-        ;   []
-        ),
-        column_selection(Cs, Vs).
+key_one(1-_).
 
 row(N, K) -->
         n_zeros(_), [1], n_zeros(K), [1], n_zeros(_), % langford sequence
