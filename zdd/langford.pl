@@ -6,16 +6,31 @@
 :- use_module(clpb).
 :- use_module(library(clpfd)).
 
-%?- langford(8, Vs, Sat), time(sat_count(Sat, Count)).
-%@ % 645,361,793 inferences, 76.585 CPU in 78.336 seconds (98% CPU, 8426737 Lips
-%@ Count = 300,
+run :-
+        length(_, N),
+        langford(N, _, Sat),
+        sat_count(Sat, Count),
+        portray_clause(N=Count),
+        %statistics,
+        false.
+
+%?- run.
+%@ 2=0.
+%@ 3=2.
+%@ 4=2.
+%@ 5=0.
+%@ 6=0.
+%@ 7=52.
 %@ etc.
 
 langford(N, Vs, *(Sats)) :-
         Len #= 3*N,
         length(Row, Len),
-        findall(Row, (between(1,N,K), phrase(row(N,K), Row)), Matrix),
+        findall(Row, (between(1,N,K), phrase(row(N,K), Row)), Matrix0),
+        sort(Matrix0, Matrix),
         transpose(Matrix, TMatrix),
+        TMatrix = [First|_],
+        same_length(Vs, First),
         phrase(sats(TMatrix, Vs), Sats),
         zdd_set_vars(Vs).
 
