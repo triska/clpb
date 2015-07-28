@@ -4,6 +4,7 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(clpb).
+:- use_module(library(clpfd)).
 
 euler_161(Count) :-
         polyominos(9, 12, Vs, Conj),
@@ -57,7 +58,7 @@ list_first_rest([L|Ls], L, Ls).
 
 
 matrix(M, N, Ms) :-
-        Squares is M*N,
+        Squares #= M*N,
         length(Ls, Squares),
         findall(Ls, line(N,Ls), Ms0),
         sort(Ms0, Ms).
@@ -71,20 +72,20 @@ line(N, Ls) :-
 tile_([], _, _, P, P) --> [].
 tile_([T|Ts], N, Max, P0, P) -->
         tile_part(T, N, P0, P1),
-        { (P1 - 1) mod N >= P0 mod N,
-          P2 is min(P0 + N, Max) },
+        { (P1 - 1) mod N #>= P0 mod N,
+          P2 #= min(P0 + N, Max) },
         zeros(P1, P2),
         tile_(Ts, N, Max, P2, P).
 
 tile_part([], _, P, P) --> [].
 tile_part([L|Ls], N, P0, P) -->
         [L],
-        { P1 is P0 + 1 },
+        { P1 #= P0 + 1 },
         tile_part(Ls, N, P1, P).
 
 zeros(P, P) --> [].
 zeros(P0, P) --> [0],
-        { P1 is P0 + 1 },
+        { P1 #= P0 + 1 },
         zeros(P1, P).
 
 %?- matrix(4, 4, Ms), maplist(writeln, Ms).

@@ -55,13 +55,13 @@ length_(L, Ls) :- length(Ls, L).
 diagonals(Qs, Row, Col, N) -->
         (   { Row > N } -> []
         ;   { Col > N } ->
-            { Row1 is Row + 1 },
+            { Row1 #= Row + 1 },
             diagonals(Qs, Row1, 1, N)
         ;   { phrase(diagonal_down(Qs, Row, Col, N), Ds) },
             [Ds],
             { phrase(diagonal_up(Qs, Row, Col, N), Us) },
             [Us],
-            { Col1 is Col + 1 },
+            { Col1 #= Col + 1 },
             diagonals(Qs, Row, Col1, N)
         ).
 
@@ -69,8 +69,8 @@ diagonal_down(Qs, Row, Col, N) -->
         (   { Row > N } -> []
         ;   { Col > N } -> []
         ;   queen_at(Qs, Row, Col),
-            { Row1 is Row + 1,
-              Col1 is Col + 1 },
+            { Row1 #= Row + 1,
+              Col1 #= Col + 1 },
             diagonal_down(Qs, Row1, Col1, N)
         ).
 
@@ -78,8 +78,8 @@ diagonal_up(Qs, Row, Col, N) -->
         (   { Row < 1 } -> []
         ;   { Col > N } -> []
         ;   queen_at(Qs, Row, Col),
-            { Row1 is Row - 1,
-              Col1 is Col + 1 },
+            { Row1 #= Row - 1,
+              Col1 #= Col + 1 },
             diagonal_up(Qs, Row1, Col1, N)
         ).
 

@@ -1,4 +1,5 @@
 :- use_module(clpb).
+:- use_module(library(clpfd)).
 
 %?- edge(X, Y).
 
@@ -19,7 +20,7 @@ edge(X, Y) :-
 edge_(A, B, A, B).
 edge_(B, A, A, B).
 edge_(_, N1, X, Y) :-
-        N2 is N1 + 1,
+        N2 #= N1 + 1,
         cycle(Limit),
         N2 =< Limit,
         edge_(N1, N2, X, Y).
