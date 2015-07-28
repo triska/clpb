@@ -1,4 +1,4 @@
-:- use_module(clpb).
+:- use_module(library(clpb)).
 :- use_module(library(clpfd)).
 
 %?- run.
