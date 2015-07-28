@@ -16,7 +16,12 @@ run :-
 
 %?- dominos(8, 8, Vs, Conj), sat(Conj).
 
-%?- between(1,10, Cols), dominos(2, Cols, Vs, Conj), sat_count(Conj, N), writeln(Cols=N), false.
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Interestingly, the Fibonacci numbers arise when we ask for the
+   number of domino tilings of a 2xN board.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+%?- between(1,10,N), dominos(2, N, Vs, Conj), sat_count(Conj, Count), writeln(N=Count), false.
 %@ 1=1
 %@ 2=2
 %@ 3=3
