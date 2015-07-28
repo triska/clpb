@@ -74,23 +74,20 @@ tile([[1],
 
 
 dominos(M, N, Vs, *(Cs)) :-
-        matrix(M, N, Ms),
-        same_length(Ms, Vs),
-        Ms = [First|_],
-        phrase(all_cardinalities(First, Vs, Ms), Cs).
+        matrix(M, N, Rows),
+        same_length(Rows, Vs),
+        transpose(Rows, Cols),
+        phrase(all_cardinalities(Cols, Vs), Cs).
 
-all_cardinalities([], _, _) --> [].
-all_cardinalities([_|Rest], Vs, Rows0) -->
-        { maplist(list_first_rest, Rows0, Fs, Rows),
-          pairs_keys_values(Pairs0, Fs, Vs),
+all_cardinalities([], _) --> [].
+all_cardinalities([Col|Cols], Vs) -->
+        { pairs_keys_values(Pairs0, Col, Vs),
           include(key_one, Pairs0, Pairs),
           pairs_values(Pairs, Cs) },
         [card([1], Cs)],
-        all_cardinalities(Rest, Vs, Rows).
+        all_cardinalities(Cols, Vs).
 
 key_one(1-_).
-
-list_first_rest([L|Ls], L, Ls).
 
 
 matrix(M, N, Ms) :-
