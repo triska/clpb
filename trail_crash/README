@@ -1,0 +1,22 @@
+
+Backtrace, using SWI-Prolog 7.3.4 (Debian 8.1):
+
+    $ swipl -f crash.pl 
+    [Thread 1] pl-gc.c:532: makePtr: Assertion failed: ((char *)(ptr) >= (char *)(__PL_ld->stacks.trail.base) && (char *)(ptr) < (char *)(__PL_ld->stacks.trail.max) + (__PL_ld->stacks.trail.spare))
+    C-stack trace labeled "crash":
+      [0] save_backtrace() at :? [0x7fa55c0d16fa]
+      [1] __assert_fail() at ??:? [0x7fa55c097861]
+      [2] countingMutexUnlock.part.9() at pl-gc.c:? [0x7fa55c01b7f0]
+      [3] update_relocation_chain() at pl-gc.c:? [0x7fa55c054d7e]
+      [4] garbageCollect() at :? [0x7fa55c05942d]
+      [5] dispatch_signal() at pl-setup.c:? [0x7fa55c083e9c]
+      [6] handleSignals.part.2() at pl-setup.c:? [0x7fa55c084136]
+      [7] PL_next_solution() at ??:? [0x7fa55c03430a]
+      [8] query_loop() at :? [0x7fa55c06c4ce]
+      [9] prologToplevel() at :? [0x7fa55c06cccb]
+      [10] PL_initialise() at ??:? [0x7fa55c0a404e]
+      [11] swipl(main+0x21) [0x400831]
+      [12] __libc_start_main() at ??:? [0x7fa55ba57b45]
+      [13] swipl(+0x881) [0x400881]
+    [FATAL ERROR:
+            Received signal 6 (abrt) while in 16-th garbage collection]
