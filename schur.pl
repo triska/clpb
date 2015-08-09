@@ -18,19 +18,14 @@
 %@ etc.
 
 
-list_conj([], 1).
-list_conj([L|Ls], L*Conj) :- list_conj(Ls, Conj).
-
-
-schur_ands_conj(N, Ands, Sat) :-
+schur_ands_conj(N, Ands, *(Ands)) :-
         length(Ls, N),
         maplist(same_length([_,_,_]), Ls),
         findall(triple(I,J,Sum), (between(1,N,I),
                                      between(I,N,J),
                                      Sum #= I+J, Sum #=< N), Triples),
         phrase((cards1(Ls),
-                triples(Triples, Ls)), Ands),
-        list_conj(Ands, Sat).
+                triples(Triples, Ls)), Ands).
 
 triples([], _) --> [].
 triples([T|Ts], Ls) --> triple(T, Ls), triples(Ts, Ls).
