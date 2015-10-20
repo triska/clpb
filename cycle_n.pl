@@ -22,7 +22,7 @@ edge_(B, A, A, B).
 edge_(_, N1, X, Y) :-
         N2 #= N1 + 1,
         cycle(Limit),
-        N2 =< Limit,
+        N2 #=< Limit,
         edge_(N1, N2, X, Y).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
