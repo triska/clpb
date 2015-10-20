@@ -30,6 +30,21 @@ there are precisely 62,382,215,032 subsquare-free configurations that
 use exactly 18 matchsticks. This is the maximum number of such
 configurations for any fixed number of matchsticks on this grid.
 
+As another example, consider the following graph:
+
+![Maximal independent set of C_100](cyclegraph.png)
+
+It is the so-called cycle graph with 100 nodes, C_100. This graph has
+exactly 792,070,839,848,372,253,127 _independent sets_, and exactly
+1,630,580,875,002 _maximal_ independent sets, which are also called
+_kernels_. The gray nodes in the image above show one such kernel. It
+is also a kernel of _maximum weight_ if the weight of each node is its
+_Thue-Morse code_ (see [cycle_n.pl](cycle_n.pl) for more details).
+
+Only 5 nodes (1, 25, 41, 73 and 97) of this independent set with 38
+vertices have negative weights in this case, for a total weight of 28.
+There are exactly 256 solutions of maximum weight in this case.
+
 ### Alternative ZDD-based version of `library(clpb)`
 
 There is a limited alternative version of `library(clpb)`, based on

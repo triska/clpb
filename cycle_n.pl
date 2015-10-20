@@ -25,8 +25,64 @@ edge_(_, N1, X, Y) :-
         N2 =< Limit,
         edge_(N1, N2, X, Y).
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  The Thue-Morse code of a natural number N is (-1)^n(N), where n(N)
+  is the number of 1s in the binary representation of N.
 
+  For example, the Thue-Morse codes of the integers 1,...,10 are:
 
+   ?- thue_morse_codes(10, Ms).
+   %@ Ms = [-1, -1, 1, -1, 1, 1, -1, -1, 1|...].
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+integer_binaries(I, Bs) :-
+        once(phrase(binaries(I, 0), Bs0)),
+        reverse(Bs0, Bs).
+
+binaries(0, _) --> [].
+binaries(I, E0) -->
+        (   { I mod 2 #= 0 } -> [0]
+        ;   [1]
+        ),
+        { I1 #= I // 2, E1 #= E0 + 1 },
+        binaries(I1, E1).
+
+thue_morse_codes(N, Ms) :-
+        length(Ms, N),
+        numlist(1, N, Ns),
+        maplist(integer_binaries, Ns, Bss),
+        maplist(sum_list, Bss, Cards),
+        maplist(neg1_pow, Cards, Ms).
+
+neg1_pow(Card, Pow) :- Pow #= (-1)^Card.
+
+maximum_thue_morse_kernel(Is, Negatives, Max) :-
+        kernel(_, Vs, K),
+        sat(K),
+        length(Vs, L),
+        thue_morse_codes(L, Weights),
+        weighted_maximum(Weights, Vs, Max),
+        numlist(1, L, Ns),
+        pairs_keys_values(Pairs0, Vs, Ns),
+        include(key_one, Pairs0, Pairs),
+        pairs_values(Pairs, Is),
+        pairs_keys_values(WNs, Weights, Ns),
+        pairs_keys_values(WPairs0, Vs, WNs),
+        include(key_one, WPairs0, WPairs1),
+        pairs_values(WPairs1, WPairs2),
+        include(key_negative, WPairs2, WPairs),
+        pairs_values(WPairs, Negatives).
+
+key_negative(K-_) :- K #< 0.
+
+key_one(1-_).
+
+%?- time(maximum_thue_morse_kernel(Is, Negatives, Max)).
+%@ % 32,886,119 inferences, 6.049 CPU in 6.068 seconds (100% CPU, 5436963 Lips)
+%@ Is = [1, 3, 6, 9, 12, 15, 18, 20, 23|...],
+%@ Negatives = [1, 25, 41, 73, 97],
+%@ Max = 28 .
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    IND(X) = not OR_(u->v){ x_u /\ x_v }
@@ -59,7 +115,7 @@ node_or(Assoc, Node, Var + +(Vars)) :-
 
 u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 
-%?- kernel(_,_,Sat), clpb:sat_count(Sat, C).
+%?- kernel(_,_,Sat), sat_count(Sat, C).
 %@ Sat = ~ (... + ... + ... * ... + _G117*_G118+_G118*_G117+_G118*_G119+_G119*_G118+_G20*_G119+_G119*_G20)* (... * ... * (... + ...)* (_G113+ (... + ...))* (_G114+ (... + ... + _G115))* (_G115+ (0+_G114+_G116))* (_G116+ (0+_G115+_G117))* (_G117+ (0+_G116+_G118))* (_G118+ (0+_G117+_G119))* (_G119+ (0+_G20+_G118))),
 %@ C = 1630580875002.
 
