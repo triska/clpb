@@ -7,8 +7,8 @@ Please see http://www.github.com/SWI-Prolog for the latest version.
 
 This repository contains usage examples and tests of the library.
 
-**Example** of Boolean variables ([matchsticks.pl](matchsticks.pl)):
-Indicate whether a matchstick should be placed at a specific position.
+**Example** of Boolean variables: Indicate whether a matchstick should
+be placed at a specific position ([matchsticks.pl](matchsticks.pl)).
 
 ![Matchsticks initial configuration](matchsticks1.png)
 
@@ -18,17 +18,17 @@ Sample solution, leaving the maximum number of matchsticks in place:
 
 ![Matchsticks without any subsquares](matchsticks2.png)
 
-Note that subsquares will remain of you keep more matchsticks in
-place. For example, the following configuration contains precisely 7
+Note that subsquares will remain if you keep more matchsticks in
+place. For example, the following configuration contains exactly 7
 subsquares, including the 4x4 outer square:
 
-![Precisely 7 subsquares remaining](matchsticks3.png)
+![Exactly 7 subsquares remaining](matchsticks3.png)
 
 CLP(B) constraints can be used to quickly generate, test and count
 solutions of such puzzles, among many other applications. For example,
 there are precisely 62,382,215,032 subsquare-free configurations that
 use exactly 18 matchsticks. This is the maximum number of such
-configurations for any fixed number of matchsticks on this roster.
+configurations for any fixed number of matchsticks on this grid.
 
 ### Alternative ZDD-based version of `library(clpb)`
 
