@@ -1,15 +1,14 @@
 ### `library(clpb)` ships with SWI-Prolog
 
-CLP(B) is now included in SWI-Prolog as
+CLP(B), Constraint Logic Programming over Boolean variables, is
+included in SWI-Prolog as
 [library(clpb)](http://www.swi-prolog.org/man/clpb.html).
-
-Please see http://www.github.com/SWI-Prolog for the latest version.
 
 This repository contains usage examples and tests of the library.
 
 ### Using CLP(B) constraints
 
-##### Puzzles
+#### Puzzles
 
 **Example** of Boolean variables: Indicate whether a matchstick is
 placed at a specific position ([matchsticks.pl](matchsticks.pl)).
@@ -34,19 +33,23 @@ there are precisely 62,382,215,032 subsquare-free configurations that
 use exactly 18 matchsticks. This is the maximum number of such
 configurations for any fixed number of matchsticks on this grid.
 
-##### Independent sets and weighted solutions
+#### Independent sets and weighted kernels
 
 As another example, consider the following graph:
 
-![Maximal independent set of C_100](cyclegraph.png)
+![Cycle graph with 100 nodes, C_100](cycle100.png)
 
 It is the so-called _cycle graph_ with 100 nodes, C_100. Using CLP(B)
 constraints, it is easy to see that this graph has exactly
 792,070,839,848,372,253,127 _independent sets_, and exactly
 1,630,580,875,002 _maximal_ independent sets, which are also called
-_kernels_. The gray nodes in the image above show one such kernel. It
-is also a kernel of _maximum weight_ if the weight of each node is its
-_Thue-Morse code_ (see [cycle_n.pl](cycle_n.pl) for more details).
+_kernels_. The gray nodes in the next picture show one such kernel:
+
+![Maximal independent set of C_100](cycle100_maximum.png)
+
+This is also a kernel of _maximum weight_ if the weight of each node
+is its _Thue-Morse code_ (see [cycle_n.pl](cycle_n.pl) for more
+details). Nodes with negative weights are drawn as squares.
 
 Only 5 nodes (1, 25, 41, 73 and 97) of this kernel with 38 nodes have
 negative weights in this case, for a total weight of 28. There are
@@ -55,6 +58,11 @@ exactly 256 kernels of maximum weight in this case. There are exactly
 34 and 50 nodes. For any fixed number of nodes, the maximum number of
 kernels (492,957,660,000) is attained with 41 nodes, and among these
 kernels, the maximum total Thue-Morse weight is 25.
+
+By negating the coefficients of `maximum_weight/3`, we can also find
+kernels with _minimum_ weight. For example:
+
+![Kernel of C_100 with minimum weight](cycle100_minimum.png)
 
 ### Alternative ZDD-based version of `library(clpb)`
 
