@@ -17,15 +17,13 @@ placed at a specific position ([matchsticks.pl](matchsticks.pl)).
 
 We can use the CLP(B) predicate `weighted_maximum/3` to show that we
 need to remove at least 9 matchsticks to eliminate all subsquares.
-Sample solution, leaving the maximum number of matchsticks in place:
 
-![Matchsticks without any subsquares](figures/matchsticks2.png)
+![Matchsticks without any subsquares](figures/matchsticks2.png) ![Exactly 7 subsquares remaining](figures/matchsticks3.png)
 
-Note that subsquares will remain if you keep more matchsticks in
-place. For example, the following configuration contains exactly 7
-subsquares, including the 4x4 outer square:
-
-![Exactly 7 subsquares remaining](figures/matchsticks3.png)
+The left figure shows a sample solution, leaving the maximum number of
+matchsticks (31) in place. If you keep more matchsticks in place,
+subsquares will remain. For example, the right figure contains exactly
+7 subsquares, including the 4x4 outer square.
 
 CLP(B) constraints can be used to quickly generate, test and count
 solutions of such puzzles, among many other applications. For example,
