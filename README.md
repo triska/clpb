@@ -37,11 +37,13 @@ As another example, consider the following graph:
 
 ![Cycle graph with 100 nodes, C_100](figures/cycle100.png)
 
-It is the so-called _cycle graph_ with 100 nodes, C_100. Using CLP(B)
-constraints, it is easy to see that this graph has exactly
-792,070,839,848,372,253,127 _independent sets_, and exactly
-1,630,580,875,002 _maximal_ independent sets, which are also called
-_kernels_. The gray nodes in the next picture show one such kernel:
+It is the so-called
+[_cycle graph_](https://en.wikipedia.org/wiki/Cycle_graph) with 100
+nodes, C<sub>100</sub>. Using CLP(B) constraints, it is easy to see
+that this graph has exactly 792,070,839,848,372,253,127 _independent
+sets_, and exactly 1,630,580,875,002 _maximal_ independent sets, which
+are also called _kernels_. The gray nodes in the next picture show one
+such kernel:
 
 ![Maximal independent set of C_100](figures/cycle100_maximum.png)
 
