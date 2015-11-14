@@ -29,7 +29,7 @@ I recommend you start with the following examples:
    maximal independent sets (also called *kernels*) of the
    [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;<i>C<sub>N</sub></i>.
    
-   ![Cycle graph C_7](figures/cycle7.png) ![Kernel of C_7](figures/cycle7_kernel.png)
+   ![Cycle graph C_7](figures/cycle7.png) ![](figures/filler.png) ![Kernel of C_7](figures/cycle7_kernel.png)
 
     See below for more information about weighted solutions.
 
