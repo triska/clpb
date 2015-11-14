@@ -1,4 +1,4 @@
-## CLP(B): Constraint Logic Programming over Boolean variables
+# CLP(B): Constraint Logic Programming over Boolean variables
 
 CLP(B), Constraint Logic Programming over Boolean variables, is
 available in SWI-Prolog as
@@ -6,7 +6,7 @@ available in SWI-Prolog as
 
 This repository contains usage examples and tests of the library.
 
-### Using CLP(B) constraints
+## Using CLP(B) constraints
 
 I recommend you study the following examples in particular:
 
@@ -42,7 +42,7 @@ Other examples are useful as benchmarks:
   known from
   [Ramsey theory](http://mathworld.wolfram.com/RamseyTheory.html).
 
-#### Matchsticks puzzle
+### Matchsticks puzzle
 
 In [matchsticks.pl](matchsticks.pl), Boolean variables indicate
 whether a matchstick is placed at a specific position. The task is to
@@ -67,7 +67,7 @@ there are precisely 62,382,215,032 subsquare-free configurations that
 use exactly 18&nbsp;matchsticks. This is the maximum number of such
 configurations for any fixed number of matchsticks on this grid.
 
-#### Independent sets and weighted kernels
+### Independent sets and weighted kernels
 
 As another example, consider the following graph:
 
@@ -100,7 +100,7 @@ kernels with _minimum_ weight. For example:
 
 ![Kernel of C_100 with minimum weight](figures/cycle100_minimum.png)
 
-### Alternative ZDD-based version of `library(clpb)`
+## Alternative ZDD-based version of `library(clpb)`
 
 There is a limited alternative version of `library(clpb)`, based on
 Zero-suppressed Binary Decision Diagrams (ZDDs).
