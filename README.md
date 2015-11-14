@@ -61,7 +61,7 @@ that the maximum number of matchsticks is left in place:
 We can use the CLP(B) predicate `weighted_maximum/3` to show that we
 need to remove at least 9 matchsticks to eliminate all subsquares.
 
-![Matchsticks without any subsquares](figures/matchsticks2.png) ![Exactly 7 subsquares remaining](figures/matchsticks3.png)
+![Matchsticks without any subsquares](figures/matchsticks2.png) ![](figures/filler.png) ![Exactly 7 subsquares remaining](figures/matchsticks3.png)
 
 The left figure shows a sample solution, leaving the maximum number of
 matchsticks&nbsp;(31) in place. If you keep more matchsticks in place,
