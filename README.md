@@ -8,7 +8,14 @@ This repository contains usage examples and tests of the library.
 
 ## Using CLP(B) constraints
 
-I recommend you study the following examples in particular:
+Many of the examples use
+[DCG notation](http://www.metalevel.at/dcg.html) to describe lists,
+and in particular: lists of *clauses*. This lets you easily reason
+about the constraints that are being posted, change the order in which
+the are posted, and in general more conveniently experiment
+with&nbsp;CLP(B).
+
+I recommend you start with the following examples:
 
 1. [**knights_and_knaves.pl**](knights_and_knaves.pl): Solution of
    several Boolean puzzles that appear in Raymond Smullyan's _What Is
