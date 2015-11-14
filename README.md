@@ -29,7 +29,7 @@ I recommend you start with the following examples:
    maximal independent sets (also called *kernels*) of the
    [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;<i>C<sub>N</sub></i>.
    
-   ![Cycle graph C_7](figures/cycle7.png) ![](figures/filler.png) ![Kernel of C_7](figures/cycle7_kernel.png)
+   ![](figures/filler.png) ![Cycle graph C_7](figures/cycle7.png) ![](figures/filler20.png) ![Kernel of C_7](figures/cycle7_kernel.png)
 
     See below for more information about weighted solutions.
 
@@ -56,12 +56,12 @@ whether a matchstick is placed at a specific position. The task is to
 eliminate all subsquares from the initial configuration in such a way
 that the maximum number of matchsticks is left in place:
 
-![Matchsticks initial configuration](figures/matchsticks1.png)
+![](figures/filler.png) ![Matchsticks initial configuration](figures/matchsticks1.png)
 
 We can use the CLP(B) predicate `weighted_maximum/3` to show that we
 need to remove at least 9 matchsticks to eliminate all subsquares.
 
-![Matchsticks without any subsquares](figures/matchsticks2.png) ![](figures/filler.png) ![Exactly 7 subsquares remaining](figures/matchsticks3.png)
+![](figures/filler.png) ![Matchsticks without any subsquares](figures/matchsticks2.png) ![](figures/filler.png) ![Exactly 7 subsquares remaining](figures/matchsticks3.png)
 
 The left figure shows a sample solution, leaving the maximum number of
 matchsticks&nbsp;(31) in place. If you keep more matchsticks in place,
@@ -78,7 +78,7 @@ configurations for any fixed number of matchsticks on this grid.
 
 As another example, consider the following graph:
 
-![Cycle graph with 100 nodes, C_100](figures/cycle100.png)
+![](figures/filler20.png) ![Cycle graph with 100 nodes, C_100](figures/cycle100.png)
 
 It is the so-called
 [_cycle graph_](https://en.wikipedia.org/wiki/Cycle_graph) with
@@ -88,7 +88,7 @@ _independent sets_, and exactly 1,630,580,875,002 _maximal_
 independent sets, which are also called _kernels_. The gray nodes in
 the next picture show one such kernel:
 
-![Maximal independent set of C_100](figures/cycle100_maximum.png)
+![](figures/filler20.png) ![Maximal independent set of C_100](figures/cycle100_maximum.png)
 
 This is also a kernel of _maximum weight_ if the weight of each node
 is its _Thue-Morse code_ (see [cycle_n.pl](cycle_n.pl) for more
@@ -105,7 +105,7 @@ kernels, the maximum total Thue-Morse weight is 25.
 By negating the coefficients of `maximum_weight/3`, we can also find
 kernels with _minimum_ weight. For example:
 
-![Kernel of C_100 with minimum weight](figures/cycle100_minimum.png)
+![](figures/filler20.png) ![Kernel of C_100 with minimum weight](figures/cycle100_minimum.png)
 
 ## Alternative ZDD-based version of `library(clpb)`
 
