@@ -32,8 +32,15 @@ I recommend you study the following examples in particular:
    such that no digit occurs more than three times in&nbsp;<i>n</i>?
 
 Other examples are useful as benchmarks:
-[n_queens.pl](n_queens.pl), [langford.pl](langford.pl) and
-[schur.pl](schur.pl).
+
+- [langford.pl](langford.pl): Count the number of [Langford pairings](https://en.wikipedia.org/wiki/Langford_pairing).
+- [n_queens.pl](n_queens.pl): CLP(B) formulation of the
+  [N-queens puzzle]((https://en.wikipedia.org/wiki/Eight_queens_puzzle).
+- [pigeon.pl](pigeon.pl): A simple allocation task.
+- [schur.pl](schur.pl): A problem related to
+  [Schur's number](http://mathworld.wolfram.com/SchurNumber.html) as
+  known from
+  [Ramsey theory](http://mathworld.wolfram.com/RamseyTheory.html).
 
 #### Matchsticks puzzle
 
