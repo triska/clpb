@@ -108,3 +108,30 @@ Zero-suppressed Binary Decision Diagrams (ZDDs).
 Please see the [**zdd**](zdd) directory for more information. Try the
 ZDD-based version for tasks where the BDD-based version runs out of
 memory. You must use `zdd_set_vars/1` before using `sat/1` though.
+
+## Acknowledgments
+
+I am extremely grateful to:
+
+[**Jan Wielemaker**](http://www.swi-prolog.org) for providing the
+Prolog system that made all this possible in the first place.
+
+[**Ulrich Neumerkel**](http://www.complang.tuwien.ac.at/ulrich/), who
+introduced me to constraint logic programming and CLP(B) in
+particular. If you are teaching Prolog, I strongly recommend you check
+out his
+[GUPU&nbsp;system](http://www.complang.tuwien.ac.at/ulrich/gupu/).
+
+[**Nysret Musliu**](http://dbai.tuwien.ac.at/staff/musliu/), my thesis
+advisor, whose interest in combinatorial tasks, constraint
+satisfaction and SAT&nbsp;solving highly motivated me to work in this
+area.
+
+[**Mats Carlsson**](https://www.sics.se/~matsc/), the designer and
+main implementor of SICStus Prolog and its visionary
+[CLP(B)&nbsp;library](https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/lib_002dclpb.html#lib_002dclpb).
+For any serious use of Prolog and constraints, make sure to check out
+his elegant and fast system.
+
+[**Donald Knuth**](http://www-cs-faculty.stanford.edu/~uno/) for the
+superb treatment of BDDs and&nbsp;ZDDs in his books and programs.
