@@ -22,7 +22,7 @@ I recommend you study the following examples in particular:
    maximal independent sets (also called *kernels*) of the
    [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;C<sub>N</sub>.
    
-   ![Cycle graph C_7][figures/cycle7.png] ![Kernel of C_7][figures/cycle7_kernel.png]
+   ![Cycle graph C_7](figures/cycle7.png) ![Kernel of C_7](figures/cycle7_kernel.png)
 
     See below for more information about weighted solutions.
 
