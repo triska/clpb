@@ -32,7 +32,7 @@ I recommend you study the following examples in particular:
    such that no digit occurs more than three times in&nbsp;<i>n</i>?
 
 Other examples are useful as benchmarks:
-[bool_queens.pl](bool_queens.pl), [langford.pl](langford.pl) and
+[n_queens.pl](n_queens.pl), [langford.pl](langford.pl) and
 [schur.pl](schur.pl).
 
 #### Matchsticks puzzle
