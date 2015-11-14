@@ -20,7 +20,7 @@ I recommend you study the following examples in particular:
 
 3. [**cycle_n.pl**](cycle_n.pl): Expresses independent sets and
    maximal independent sets (also called *kernels*) of the
-   [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;C<sub>N</sub>.
+   [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;<i>C<sub>N</sub></i>.
    
    ![Cycle graph C_7](figures/cycle7.png) ![Kernel of C_7](figures/cycle7_kernel.png)
 
@@ -75,8 +75,8 @@ As another example, consider the following graph:
 
 It is the so-called
 [_cycle graph_](https://en.wikipedia.org/wiki/Cycle_graph) with
-100&nbsp;nodes, C<sub>100</sub>. Using CLP(B) constraints, it is easy
-to see that this graph has exactly 792,070,839,848,372,253,127
+100&nbsp;nodes, <i>C<sub>100</sub></i>. Using CLP(B) constraints, it
+is easy to see that this graph has exactly 792,070,839,848,372,253,127
 _independent sets_, and exactly 1,630,580,875,002 _maximal_
 independent sets, which are also called _kernels_. The gray nodes in
 the next picture show one such kernel:
