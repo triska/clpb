@@ -77,16 +77,16 @@ length_(L, Ls) :- length(Ls, L).
 diagonals(Qs, Row, Col, N) -->
         (   { Row > N } -> []
         ;   { Col > N } ->
-            { Row1 is Row + 1 },
+            { Row1 #= Row + 1 },
             diagonals(Qs, Row1, 1, N)
         ;   { queen_at(Qs, Row, Col, Q),
-              DRow is Row + 1,
-              DCol is Col + 1 },
+              DRow #= Row + 1,
+              DCol #= Col + 1 },
             diagonal_down(Qs, DRow, DCol, N, Q),
-            { URow is Row - 1,
-              UCol is Col + 1 },
+            { URow #= Row - 1,
+              UCol #= Col + 1 },
             diagonal_up(Qs, URow, UCol, N, Q),
-            { Col1 is Col + 1 },
+            { Col1 #= Col + 1 },
             diagonals(Qs, Row, Col1, N)
         ).
 
@@ -95,8 +95,8 @@ diagonal_down(Qs, Row, Col, N,Q) -->
         ;   { Col > N } -> []
         ;   { queen_at(Qs, Row, Col, Q0) },
             not_same(Q, Q0),
-            { Row1 is Row + 1,
-              Col1 is Col + 1 },
+            { Row1 #= Row + 1,
+              Col1 #= Col + 1 },
             diagonal_down(Qs, Row1, Col1, N, Q)
         ).
 
@@ -105,8 +105,8 @@ diagonal_up(Qs, Row, Col, N, Q) -->
         ;   { Col > N } -> []
         ;   { queen_at(Qs, Row, Col, Q0) },
             not_same(Q, Q0),
-            { Row1 is Row - 1,
-              Col1 is Col + 1 },
+            { Row1 #= Row - 1,
+              Col1 #= Col + 1 },
             diagonal_up(Qs, Row1, Col1, N, Q)
         ).
 
