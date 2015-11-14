@@ -60,8 +60,8 @@ not_same_row_([L|Ls], Q) -->
 length_(L, Ls) :- length(Ls, L).
 
 diagonals(Qs, Row, Col, N) -->
-        (   { Row > N } -> []
-        ;   { Col > N } ->
+        (   { Row #> N } -> []
+        ;   { Col #> N } ->
             { Row1 #= Row + 1 },
             diagonals(Qs, Row1, 1, N)
         ;   { queen_at(Qs, Row, Col, Q),
@@ -76,8 +76,8 @@ diagonals(Qs, Row, Col, N) -->
         ).
 
 diagonal_down(Qs, Row, Col, N,Q) -->
-        (   { Row > N } -> []
-        ;   { Col > N } -> []
+        (   { Row #> N } -> []
+        ;   { Col #> N } -> []
         ;   { queen_at(Qs, Row, Col, Q0) },
             [~Q + ~Q0],
             { Row1 #= Row + 1,
@@ -86,8 +86,8 @@ diagonal_down(Qs, Row, Col, N,Q) -->
         ).
 
 diagonal_up(Qs, Row, Col, N, Q) -->
-        (   { Row < 1 } -> []
-        ;   { Col > N } -> []
+        (   { Row #< 1 } -> []
+        ;   { Col #> N } -> []
         ;   { queen_at(Qs, Row, Col, Q0) },
             [~Q + ~Q0],
             { Row1 #= Row - 1,
