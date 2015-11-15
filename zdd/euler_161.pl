@@ -1,21 +1,21 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Project Euler Problem 161:
-   Number of Trominos tilings of a 9x12 board.
+   Number of Tromino tilings of a 9x12 board.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(clpb).
 :- use_module(library(clpfd)).
 
 euler_161(Count) :-
-        polyominos(9, 12, Vs, Conj),
+        triominoes(9, 12, Vs, Conj),
         zdd_set_vars(Vs),
         sat_count(Conj, Count).
 
-%?- between(1,10, Cols), polyominos(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
+%?- between(1,10, Cols), triominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   Trominos
+   Trominoes
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 tile([[1,1],
@@ -37,7 +37,7 @@ tile([[1],
       [1]]).
 
 
-polyominos(M, N, Vs, *(Cs)) :-
+triominoes(M, N, Vs, *(Cs)) :-
         matrix(M, N, Rows),
         same_length(Rows, Vs),
         transpose(Rows, Cols),
