@@ -26,8 +26,9 @@ I recommend you start with the following examples:
 2. [**matchsticks.pl**](matchsticks.pl): A puzzle involving
    matchsticks. See below for more information.
 
-3. [**cycle_n.pl**](cycle_n.pl): Expresses independent sets and
-   maximal independent sets (also called *kernels*) of the
+3. [**cycle_n.pl**](cycle_n.pl): Uses Boolean constraints to express
+   independent sets and *maximal* independent sets (also called
+   *kernels*) of the
    [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;<i>C<sub>N</sub></i>.
    
    ![](figures/filler.png) ![Cycle graph C_7](figures/cycle7.png) ![](figures/filler20.png) ![Kernel of C_7](figures/cycle7_kernel.png)
