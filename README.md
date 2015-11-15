@@ -54,18 +54,18 @@ I recommend you start with the following examples:
 
 Other examples are useful as benchmarks:
 
-- [langford.pl](langford.pl): Count the number of [Langford pairings](https://en.wikipedia.org/wiki/Langford_pairing).
-- [n_queens.pl](n_queens.pl): CLP(B) formulation of the
+- [**langford.pl**](langford.pl): Count the number of [Langford pairings](https://en.wikipedia.org/wiki/Langford_pairing).
+- [**n_queens.pl**](n_queens.pl): CLP(B) formulation of the
   [N-queens puzzle](https://en.wikipedia.org/wiki/Eight_queens_puzzle).
-- [pigeon.pl](pigeon.pl): A simple allocation task.
-- [schur.pl](schur.pl): A problem related to
+- [**pigeon.pl**](pigeon.pl): A simple allocation task.
+- [**schur.pl**](schur.pl): A problem related to
   [Schur's number](http://mathworld.wolfram.com/SchurNumber.html) as
   known from
   [Ramsey theory](http://mathworld.wolfram.com/RamseyTheory.html).
 
 ### Matchsticks puzzle
 
-In [matchsticks.pl](matchsticks.pl), Boolean variables indicate
+In [**matchsticks.pl**](matchsticks.pl), Boolean variables indicate
 whether a matchstick is placed at a specific position. The task is to
 eliminate all subsquares from the initial configuration in such a way
 that the maximum number of matchsticks is left in place:
@@ -105,7 +105,7 @@ the next picture show one such kernel:
 ![](figures/filler20.png) ![Maximal independent set of C_100](figures/cycle100_maximum.png)
 
 This is also a kernel of _maximum weight_ if the weight of each node
-is its _Thue-Morse code_ (see [cycle_n.pl](cycle_n.pl) for more
+is its _Thue-Morse code_ (see [**cycle_n.pl**](cycle_n.pl) for more
 details). Nodes with negative weights are drawn as squares.
 
 Only 5 nodes (1, 25, 41, 73 and 97) of this kernel with 38 nodes have
