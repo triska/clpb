@@ -39,6 +39,10 @@ Core&nbsp;i7 CPU (2.67&nbsp;GHz), you know after about 17&nbsp;hours
 of computation time: There are 20,574,308,184,277,971&nbsp;ways to
 do&nbsp;it.
 
+One of these solutions, picked at random:
+
+![](../figures/filler.png) ![Triominoe tiling of a 9x12 grid](../figures/euler_161.png)
+
 ## Limitations
 
 There are currently some limitations, mostly due to shortcomings of
