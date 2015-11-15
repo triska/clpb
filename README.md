@@ -9,11 +9,12 @@ This repository contains usage examples and tests of the library.
 ## Using CLP(B) constraints
 
 Many of the examples use
-[DCG notation](http://www.metalevel.at/dcg.html) to describe lists,
-and in particular: lists of *clauses*. This lets you easily reason
-about the constraints that are being posted, change the order in which
-the are posted, and in general more conveniently experiment
-with&nbsp;CLP(B).
+[**DCG notation**](http://www.metalevel.at/dcg.html) to describe
+lists, and in particular: lists of *clauses*. This lets you easily
+reason about the constraints that are being posted, change the order
+in which the are posted, and in general more conveniently experiment
+with&nbsp;CLP(B). It is sometimes faster to post a single big
+conjunction instead of several smaller ones.
 
 I recommend you start with the following examples:
 
@@ -37,6 +38,19 @@ I recommend you start with the following examples:
    [Problem 172](https://projecteuler.net/problem=172): How many
    18-digit numbers&nbsp;<i>n</i> (without leading zeros) are there
    such that no digit occurs more than three times in&nbsp;<i>n</i>?
+
+5. [**dominos.pl**](dominos.pl): Domino tiling of an
+   <i>N&times;N</i>&nbsp;chessboard. Using CLP(B), it is easy to see
+   that there are 12,988,816&nbsp;ways to cover an
+   8&times;8&nbsp;chessboard with dominoes:
+   
+   ![](figures/filler.png) ![Domino tiling of an 8x8 chessboard](figures/domino8x8.png) ![](figures/filler20.png) ![Domino tiling of a 2x8 chessboard](figures/domino2x8.png)
+
+   Interestingly, the
+   [Fibonacci numbers](http://mathworld.wolfram.com/FibonacciNumber.html)
+   arise when we count the number of domino tilings of
+   <b>2</b>&times;N&nbsp;chessboards. An example is shown in the right
+   figure.
 
 Other examples are useful as benchmarks:
 
