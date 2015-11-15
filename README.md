@@ -40,7 +40,7 @@ I recommend you start with the following examples:
    such that no digit occurs more than three times in&nbsp;<i>n</i>?
 
 5. [**domino_tiling.pl**](domino_tiling.pl): Domino tiling of an
-   <i>N&times;N</i>&nbsp;chessboard. Using CLP(B), it is easy to see
+   <i>M&times;N</i>&nbsp;chessboard. Using CLP(B), it is easy to see
    that there are 12,988,816&nbsp;ways to cover an
    8&times;8&nbsp;chessboard with dominoes:
    
