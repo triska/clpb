@@ -28,6 +28,16 @@ Sample solution:
 
 ![](../figures/filler.png) ![Polyomino tiling of an 8x8 chessboard](../figures/polyomino8x8.png)
 
+### Project Euler Problem 161
+
+Project Euler [Problem 161](https://projecteuler.net/problem=161) asks
+for the number of *Triomino&nbsp;tilings* of a 9&times;12 grid.
+
+[**euler_161.pl**] shows how this can be solved with the ZDD-based
+variant of CLP(B)&nbsp;constraints. Using an Intel Core&nbsp;i7 CPU
+(2.67&nbsp;GHz), you know after about 17&nbsp;hours of computation
+time: There are 20,574,308,184,277,971&nbsp;ways to do&nbsp;it.
+
 ## Limitations
 
 There are currently some limitations, mostly due to shortcomings of
