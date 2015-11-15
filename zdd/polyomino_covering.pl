@@ -22,13 +22,13 @@
 
 run :-
         length(_, N),
-        time((polyominos(N, N, Vs, Conj),
+        time((polyominoes(N, N, Vs, Conj),
               zdd_set_vars(Vs),
               sat_count(Conj, Count),
               portray_clause(N=Count))),
         false.
 
-%?- between(1,10, Cols), polyominos(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
+%?- between(1,10, Cols), polyominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Monomino
@@ -38,7 +38,7 @@ tile([[1]]).
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   Dominos
+   Dominoes
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 tile([[1,1]]).
@@ -47,7 +47,7 @@ tile([[1],
       [1]]).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   Trominos
+   Trominoes
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 tile([[1,1],
@@ -69,7 +69,7 @@ tile([[1],
       [1]]).
 
 
-polyominos(M, N, Vs, *(Cs)) :-
+polyominoes(M, N, Vs, *(Cs)) :-
         matrix(M, N, Rows),
         same_length(Rows, Vs),
         transpose(Rows, Cols),

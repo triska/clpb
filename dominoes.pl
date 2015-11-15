@@ -10,18 +10,18 @@
 
 run :-
         length(_, N),
-        time((dominos(N, N, _Vs, Conj), sat_count(Conj, Count),
+        time((dominoes(N, N, _Vs, Conj), sat_count(Conj, Count),
               portray_clause(N=Count))),
         false.
 
-%?- dominos(8, 8, Vs, Conj), sat(Conj).
+%?- dominoes(8, 8, Vs, Conj), sat_count(Conj, Count).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Interestingly, the Fibonacci numbers arise when we ask for the
    number of domino tilings of a 2xN board.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-%?- between(1,10,N), dominos(2, N, Vs, Conj), sat_count(Conj, Count), writeln(N=Count), false.
+%?- between(1,10,N), dominoes(2, N, Vs, Conj), sat_count(Conj, Count), writeln(N=Count), false.
 %@ 1=1
 %@ 2=2
 %@ 3=3
@@ -42,7 +42,7 @@ run :-
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   Dominos
+   Dominoes
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 tile([[1,1]]).
@@ -51,7 +51,7 @@ tile([[1],
       [1]]).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   Trominos
+   Trominoes
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 % tile([[1,1],
@@ -73,7 +73,7 @@ tile([[1],
 %       [1]]).
 
 
-dominos(M, N, Vs, *(Cs)) :-
+dominoes(M, N, Vs, *(Cs)) :-
         matrix(M, N, Rows),
         same_length(Rows, Vs),
         transpose(Rows, Cols),

@@ -23,10 +23,10 @@ tile([[1],
       [1],
       [1]]).
 
-%?- triominos(4, Vs, _, Sat), sat(Sat).
+%?- triominoes(4, Vs, _, Sat), sat(Sat).
 %@ false.
 
-triominos(N, Vs, Cs, *(Cs)) :-
+triominoes(N, Vs, Cs, *(Cs)) :-
         matrix(N, N, Rows),
         same_length(Rows, Vs),
         transpose(Rows, Cols),
