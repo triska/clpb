@@ -6,6 +6,9 @@ available in SWI-Prolog as
 
 This repository contains usage examples and tests of the library.
 
+[**clpb.pdf**](clpb.pdf) is a _shortened version_ of the library
+documentation, intended as supplementary lecture material.
+
 ## Using CLP(B) constraints
 
 Many of the examples use
