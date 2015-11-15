@@ -28,6 +28,19 @@ Sample solution:
 
 ![](../figures/filler.png) ![Polyomino tiling of an 8x8 chessboard](../figures/polyomino8x8.png)
 
+**Exercises**:
+
+- A chessboard tiling is *faultfree* if every straight line that
+  passes through the interior of the board also passes through the
+  interior of some domino. Add suitable constraints to describe
+  solutions that are faultfree.
+
+- How many of the above solutions satisfy the additional property that
+  *no two congruent pieces are adjacent*?
+
+- And of those, how many are there where congruent pieces touch at
+  their corners?
+
 ### Project Euler Problem 161
 
 Project Euler [Problem 161](https://projecteuler.net/problem=161) asks
