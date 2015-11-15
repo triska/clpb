@@ -36,8 +36,8 @@ for the number of *Triomino&nbsp;tilings* of a 9&times;12 grid.
 [**euler_161.pl**](euler_161.pl) shows how this can be solved with the
 ZDD-based variant of CLP(B)&nbsp;constraints. Using an Intel
 Core&nbsp;i7 CPU (2.67&nbsp;GHz), you know after about 17&nbsp;hours
-of computation time: There are 20,574,308,184,277,971&nbsp;ways to
-do&nbsp;it.
+of computation time: There are exactly
+20,574,308,184,277,971&nbsp;ways to do&nbsp;it.
 
 One of these solutions, picked at random:
 
@@ -50,7 +50,7 @@ SWI-Prolog's interface for attributed variables (see
 [Issue&nbsp;#14](https://github.com/SWI-Prolog/roadmap/issues/14)):
 
 - unification of CLP(B) variables is *not* yet implemented in this variant
-- `labeling/1` does *not* work yet
+- `labeling/1` does *not* work yet.
 
 In addition, `card/2` does not yet support integer ranges.
 

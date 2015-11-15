@@ -11,13 +11,13 @@ documentation, intended as supplementary lecture material.
 
 ## Using CLP(B) constraints
 
-Many of the examples use
-[**DCG notation**](http://www.metalevel.at/dcg.html) to describe
-lists, and in particular: lists of *clauses*. This lets you easily
-reason about the constraints that are being posted, change the order
-in which the are posted, and in general more conveniently experiment
-with&nbsp;CLP(B). It is sometimes faster to post a single big
-conjunction instead of several smaller ones.
+Many of the examples use [**DCG
+notation**](http://www.metalevel.at/dcg.html) to describe lists of
+clauses. This lets you easily reason about the constraints that are
+being posted, change the order in which they are posted, and in
+general more conveniently experiment with&nbsp;CLP(B). In some
+examples, it is faster to post a single big conjunction instead of
+several smaller ones.
 
 I recommend you start with the following examples:
 
@@ -83,7 +83,7 @@ need to remove at least 9 matchsticks to eliminate all subsquares.
 
 The left figure shows a sample solution, leaving the maximum number of
 matchsticks&nbsp;(31) in place. If you keep more matchsticks in place,
-subsquares will remain. For example, the right figure contains exactly
+subsquares remain. For example, the right figure contains exactly
 7&nbsp;subsquares, including the 4x4 outer square.
 
 CLP(B) constraints can be used to quickly generate, test and count
