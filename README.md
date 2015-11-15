@@ -122,7 +122,7 @@ kernels with _minimum_ weight. For example:
 
 ![](figures/filler20.png) ![Kernel of C_100 with minimum weight](figures/cycle100_minimum.png)
 
-## Alternative ZDD-based version of `library(clpb)`
+## ZDD-based variant of `library(clpb)`
 
 There is a limited alternative version of `library(clpb)`, based on
 Zero-suppressed Binary Decision Diagrams (ZDDs).
