@@ -26,10 +26,18 @@ I recommend you start with the following examples:
    the Name of this Book_ and Maurice Kraitchik's _Mathematical
    Recreations_. A good starting point for learning more about CLP(B).
 
-2. [**matchsticks.pl**](matchsticks.pl): A puzzle involving
+2. [**xor.pl**](xor.pl): Verification of a digital circuit, expressing
+   XOR with NAND&nbsp;gates:
+
+   ![](figures/filler.png) ![XOR with NAND gates](figures/xor.png)
+
+   This examples uses *universally quantified* variables to express
+   the output as a function of the input variables in residual goals.
+
+3. [**matchsticks.pl**](matchsticks.pl): A puzzle involving
    matchsticks. See below for more information.
 
-3. [**cycle_n.pl**](cycle_n.pl): Uses Boolean constraints to express
+4. [**cycle_n.pl**](cycle_n.pl): Uses Boolean constraints to express
    independent sets and *maximal* independent sets (also called
    *kernels*) of the
    [cycle graph](https://en.wikipedia.org/wiki/Cycle_graph)&nbsp;<i>C<sub>N</sub></i>.
@@ -38,12 +46,12 @@ I recommend you start with the following examples:
 
     See below for more information about weighted solutions.
 
-4. [**euler_172.pl**](euler_172.pl): CLP(B) solution of Project Euler
+5. [**euler_172.pl**](euler_172.pl): CLP(B) solution of Project Euler
    [Problem 172](https://projecteuler.net/problem=172): How many
    18-digit numbers&nbsp;<i>n</i> (without leading zeros) are there
    such that no digit occurs more than three times in&nbsp;<i>n</i>?
 
-5. [**domino_tiling.pl**](domino_tiling.pl): Domino tiling of an
+6. [**domino_tiling.pl**](domino_tiling.pl): Domino tiling of an
    <i>M&times;N</i>&nbsp;chessboard. Using CLP(B), it is easy to see
    that there are 12,988,816&nbsp;ways to cover an
    8&times;8&nbsp;chessboard with dominoes:
