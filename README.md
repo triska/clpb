@@ -2,7 +2,7 @@
 
 CLP(B), Constraint Logic Programming over Boolean variables, is
 available in SWI-Prolog as
-[**library(clpb)**](http://www.swi-prolog.org/man/clpb.html).
+[**library(clpb)**](http://eu.swi-prolog.org/man/clpb.html).
 
 This repository contains usage examples and tests of the library.
 
@@ -146,7 +146,7 @@ memory. You must use `zdd_set_vars/1` before using `sat/1` though.
 
 I am extremely grateful to:
 
-[**Jan Wielemaker**](http://www.swi-prolog.org) for providing the
+[**Jan Wielemaker**](http://eu.swi-prolog.org) for providing the
 Prolog system that made all this possible in the first place.
 
 [**Ulrich Neumerkel**](http://www.complang.tuwien.ac.at/ulrich/), who
