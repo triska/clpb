@@ -1,6 +1,6 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   Partition the integers 1,...,N into 3 sum-free set (no set contains
-   the numbers i, j, and i+j).
+   Partition the integers 1,...,N into 3 sum-free sets. A set is
+   sum-free iff it does not contain i, j, and i+j.
 
    The Schur number for 3 is 13, so this is possible up to N = 13.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
