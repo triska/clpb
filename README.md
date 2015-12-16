@@ -123,7 +123,7 @@ of&nbsp;<i>j</i>. In the above figure, nodes with negative weight are
 drawn as squares, and nodes with positive weight are drawn as circles.
 
 Only 5 nodes (1, 25, 41, 73 and 97) of this kernel with 38 nodes have
-negative weights in this case, for a total weight of 28. In this case,
+negative weight in this case, for a total weight of 28. In this case,
 the example shows a kernel with <i>maximum weight</i>. It is easy to
 find such kernels with the CLP(B) predicate `maximum_weight/3`, and we
 can also compute other interesting facts: For example, there are
