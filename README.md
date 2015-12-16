@@ -116,17 +116,22 @@ the next picture show one such kernel:
 
 ![](figures/filler20.png) ![Maximal independent set of C_100](figures/cycle100_maximum.png)
 
-This is also a kernel of _maximum weight_ if the weight of each node
-is its _Thue-Morse code_ (see [**cycle_n.pl**](cycle_n.pl) for more
-details). Nodes with negative weights are drawn as squares.
+Suppose that we assign each node <i>n<sub>j</sub></i> the weight
+<i>w<sub>j</sub>&nbsp;= &nbsp;(-1)<sup>&nu;j</i>, where <i>&nu;j</i>
+denotes the number of ones in the binary representation
+of&nbsp;<i>j</i>. In the above figure, nodes with negative weight are
+drawn as squares, and nodes with positive weight are drawn as circles.
 
 Only 5 nodes (1, 25, 41, 73 and 97) of this kernel with 38 nodes have
-negative weights in this case, for a total weight of 28. There are
+negative weights in this case, for a total weight of 28. In this case,
+the example shows a kernel with <i>maximum weight</i>. It is easy to
+find such kernels with the CLP(B) predicate `maximum_weight/3`, and we
+can also compute other interesting facts: For example, there are
 exactly 256 kernels of maximum weight in this case. There are exactly
 25,446,195,000 kernels with exactly 38 nodes. All kernels have between
 34 and 50 nodes. For any fixed number of nodes, the maximum number of
 kernels (492,957,660,000) is attained with 41 nodes, and among these
-kernels, the maximum total Thue-Morse weight is 25.
+kernels, the maximum total weight is 25.
 
 By negating the coefficients of `maximum_weight/3`, we can also find
 kernels with _minimum_ weight. For example:
