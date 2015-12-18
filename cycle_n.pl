@@ -26,12 +26,12 @@ edge_(_, N1, X, Y) :-
         edge_(N1, N2, X, Y).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  The Thue-Morse code of a natural number N is (-1)^n(N), where n(N)
-  is the number of 1s in the binary representation of N.
+  Node N has weight w_N = (-1)^n(N), where n(N) is the number of 1s in
+  the binary representation of N. This is similar to Thue-Morse codes.
 
-  For example, the Thue-Morse codes of the integers 1,...,10 are:
+  For example, the Thue-Morse weights of the integers 1,...,10 are:
 
-   ?- thue_morse_codes(10, Ms).
+   ?- thue_morse_weights(10, Ms).
    %@ Ms = [-1, -1, 1, -1, 1, 1, -1, -1, 1|...].
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -48,7 +48,7 @@ binaries(I, E0) -->
         { I1 #= I // 2, E1 #= E0 + 1 },
         binaries(I1, E1).
 
-thue_morse_codes(N, Ms) :-
+thue_morse_weights(N, Ms) :-
         length(Ms, N),
         numlist(1, N, Ns),
         maplist(integer_binaries, Ns, Bss),
@@ -61,7 +61,7 @@ maximum_thue_morse_kernel(Is, Negatives, Max) :-
         kernel(_, Vs, K),
         sat(K),
         length(Vs, L),
-        thue_morse_codes(L, Weights),
+        thue_morse_weights(L, Weights),
         weighted_maximum(Weights, Vs, Max),
         numlist(1, L, Ns),
         pairs_keys_values(Pairs0, Vs, Ns),
