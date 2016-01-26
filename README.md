@@ -75,6 +75,9 @@ Other examples are useful as benchmarks:
   known from
   [Ramsey theory](http://mathworld.wolfram.com/RamseyTheory.html).
 
+The directory [**bddcalc**](bddcalc) contains a very simple calculator
+for&nbsp;BDDs.
+
 ### Matchsticks puzzle
 
 In [**matchsticks.pl**](matchsticks.pl), Boolean variables indicate
