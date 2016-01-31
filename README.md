@@ -11,13 +11,13 @@ documentation, intended as supplementary lecture material.
 
 ## Using CLP(B) constraints
 
-Many of the examples use [**DCG
-notation**](http://www.metalevel.at/dcg.html) to describe lists of
-clauses. This lets you easily reason about the constraints that are
-being posted, change the order in which they are posted, and in
-general more conveniently experiment with&nbsp;CLP(B). In some
-examples, it is faster to post a single big conjunction instead of
-several smaller ones.
+Many of the examples use
+[**DCG notation**](http://www.metalevel.at/prolog/dcg.html) to
+describe lists of clauses. This lets you easily reason about the
+constraints that are being posted, change the order in which they are
+posted, and in general more conveniently experiment with&nbsp;CLP(B).
+In some examples, it is faster to post a single big conjunction
+instead of several smaller ones.
 
 I recommend you start with the following examples:
 
