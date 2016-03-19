@@ -141,6 +141,41 @@ kernels with _minimum_ weight. For example:
 
 ![](figures/filler20.png) ![Kernel of C_100 with minimum weight](figures/cycle100_minimum.png)
 
+## Implementation
+
+The implementation of `library(clpb)` is based on ordered and reduced
+**Binary Decision Diagrams**&nbsp;(BDDs). BDDs are an important data
+structure for representing Boolean functions and have many virtues
+that often allow us to solve interesting tasks efficiently.
+
+For example, the CLP(B) constraint `sat(card([2],[X,Y,Z]))` is
+translated to the following&nbsp;BDD:
+
+![](figures/filler20.png) ![BDD for sat(card([2],[X,Y,Z]))](figures/card.svg)
+
+To inspect the BDD representation of Boolean constraints, set the
+Prolog&nbsp;flag `clpb_residuals` to&nbsp;`bdd`. For example:
+
+    ?- set_prolog_flag(clpb_residuals, bdd).
+    true.
+
+    ?- sat(X+Y).
+    node(2)- (v(X, 0)->true;node(1)),
+    node(1)- (v(Y, 1)->true;false).
+
+Using `library(clpb)` is a good way to learn more about BDDs. The
+variable order is determined by the order in which the variables are
+first encountered in constraints. You can enforce arbitrary variable
+orders by first posting a tautology such as `+[1,V1,V2,...,Vn]`.
+
+For example:
+
+<pre>
+?- <b>sat(+[1,Y,X])</b>, sat(X+Y).
+node(2)- (v(Y, 0)->true;node(1)),
+node(1)- (v(X, 1)->true;false).
+</pre>
+
 ## ZDD-based variant of `library(clpb)`
 
 There is a limited alternative version of `library(clpb)`, based on
