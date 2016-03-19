@@ -151,7 +151,7 @@ that often allow us to solve interesting tasks efficiently.
 For example, the CLP(B) constraint `sat(card([2],[X,Y,Z]))` is
 translated to the following&nbsp;BDD:
 
-![](figures/filler20.png) ![BDD for sat(card([2],[X,Y,Z]))](figures/card.svg)
+![](figures/filler20.png) ![BDD for sat(card([2],[X,Y,Z]))](http://www.metalevel.at/card.svg)
 
 To inspect the BDD representation of Boolean constraints, set the
 Prolog&nbsp;flag `clpb_residuals` to&nbsp;`bdd`. For example:
