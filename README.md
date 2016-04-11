@@ -176,6 +176,9 @@ node(2)- (v(Y, 0)->true;node(1)),
 node(1)- (v(X, 1)->true;false).
 </pre>
 
+You can render CLP(B)'s residual goals as BDDs in SWISH using the
+[**BDD&nbsp;renderer**](http://swish.swi-prolog.org/example/render_bdd.swinb).
+
 ## ZDD-based variant of `library(clpb)`
 
 There is a limited alternative version of `library(clpb)`, based on
