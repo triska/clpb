@@ -12,7 +12,7 @@ documentation, intended as supplementary lecture material.
 ## Using CLP(B) constraints
 
 Many of the examples use
-[**DCG notation**](https://www.metalevel.at/prolog/dcg.html) to
+[**DCG notation**](https://www.metalevel.at/prolog/dcg) to
 describe lists of clauses. This lets you easily reason about the
 constraints that are being posted, change the order in which they are
 posted, and in general more conveniently experiment with&nbsp;CLP(B).
