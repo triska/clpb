@@ -128,15 +128,15 @@ drawn as squares, and nodes with positive weight are drawn as circles.
 Only 5 nodes (1, 25, 41, 73 and 97) of this kernel with 38 nodes have
 negative weight in this case, for a total weight of 28. In this case,
 the example shows a kernel with <i>maximum weight</i>. It is easy to
-find such kernels with the CLP(B) predicate `maximum_weight/3`, and we
-can also compute other interesting facts: For example, there are
+find such kernels with the CLP(B) predicate `weighted_maximum/3`, and
+we can also compute other interesting facts: For example, there are
 exactly 256 kernels of maximum weight in this case. There are exactly
 25,446,195,000 kernels with exactly 38 nodes. All kernels have between
 34 and 50 nodes. For any fixed number of nodes, the maximum number of
 kernels (492,957,660,000) is attained with 41 nodes, and among these
 kernels, the maximum total weight is 25.
 
-By negating the coefficients of `maximum_weight/3`, we can also find
+By negating the coefficients of `weighted_maximum/3`, we can also find
 kernels with _minimum_ weight. For example:
 
 ![](figures/filler20.png) ![Kernel of C_100 with minimum weight](figures/cycle100_minimum.png)
