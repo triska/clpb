@@ -24,7 +24,9 @@ I recommend you start with the following examples:
 1. [**knights_and_knaves.pl**](knights_and_knaves.pl): Solution of
    several Boolean puzzles that appear in Raymond Smullyan's _What Is
    the Name of this Book_ and Maurice Kraitchik's _Mathematical
-   Recreations_. A good starting point for learning more about CLP(B).
+   Recreations_. These examples and other
+   [**logic&nbsp;puzzles**](https://www.metalevel.at/prolog/puzzles)
+   are good starting points for learning more about&nbsp;CLP(B).
 
 2. [**xor.pl**](xor.pl): Verification of a digital circuit, expressing
    XOR with NAND&nbsp;gates:
