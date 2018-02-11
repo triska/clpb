@@ -33,8 +33,8 @@ I recommend you start with the following examples:
 
    ![](figures/filler.png) ![XOR with NAND gates](figures/xor.png)
 
-   This examples uses *universally quantified* variables to express
-   the output as a function of the input variables in residual goals.
+   This example uses *universally quantified* variables to express the
+   output as a function of the input variables in residual goals.
 
 3. [**matchsticks.pl**](matchsticks.pl): A puzzle involving
    matchsticks. See below for more information.
