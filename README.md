@@ -9,6 +9,10 @@ This repository contains usage examples and tests of the library.
 [**clpb.pdf**](clpb.pdf) is a _shortened version_ of the library
 documentation, intended as supplementary lecture material.
 
+**Project page**:
+
+[**https://www.metalevel.at/clpb/**](https://www.metalevel.at/clpb/)
+
 ## Using CLP(B) constraints
 
 Many of the examples use
