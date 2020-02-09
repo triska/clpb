@@ -1,7 +1,7 @@
 # CLP(B): Constraint Logic Programming over Boolean variables
 
 CLP(B), Constraint Logic Programming over Boolean variables, is
-available in SWI-Prolog as
+available in Scryer&nbsp;Prolog and SWI-Prolog as
 [**library(clpb)**](http://eu.swi-prolog.org/man/clpb.html).
 
 This repository contains usage examples and tests of the library.
