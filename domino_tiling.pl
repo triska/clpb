@@ -1,10 +1,16 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Domino tiling of an M x N chessboard.
+   Tested with Scryer Prolog.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(library(clpb)).
-:- use_module(library(clpfd)).
-
+:- use_module(library(clpz)).
+:- use_module(library(lists)).
+:- use_module(library(format)).
+:- use_module(library(pairs)).
+:- use_module(library(dcgs)).
+:- use_module(library(time)).
+:- use_module(library(between)).
 
 %?- run.
 
@@ -21,18 +27,18 @@ run :-
    number of domino tilings of a 2xN board.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-%?- between(1,10,N), dominoes(2, N, Vs, Conj), sat_count(Conj, Count), writeln(N=Count), false.
-%@ 1=1
-%@ 2=2
-%@ 3=3
-%@ 4=5
-%@ 5=8
-%@ 6=13
-%@ 7=21
-%@ 8=34
-%@ 9=55
-%@ 10=89
-%@ false.
+%?- between(1,10,N), dominoes(2, N, Vs, Conj), sat_count(Conj, Count), portray_clause(N=Count), false.
+%@ 1=1.
+%@ 2=2.
+%@ 3=3.
+%@ 4=5.
+%@ 5=8.
+%@ 6=13.
+%@ 7=21.
+%@ 8=34.
+%@ 9=55.
+%@ 10=89.
+%@    false.
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Monomino
@@ -89,6 +95,13 @@ all_cardinalities([Col|Cols], Vs) -->
 
 key_one(1-_).
 
+include(_, [], []).
+include(G_1, [L|Ls0], Ls) :-
+        (   call(G_1, L) ->
+            Ls = [L|Rs]
+        ;   Ls = Rs
+        ),
+        include(G_1, Ls0, Rs).
 
 matrix(M, N, Ms) :-
         Squares #= M*N,
@@ -120,4 +133,4 @@ zeros(P0, P) --> [0],
         { P1 #= P0 + 1 },
         zeros(P1, P).
 
-%?- matrix(4, 4, Ms), maplist(writeln, Ms).
+%?- matrix(4, 4, Ms), maplist(portray_clause, Ms).

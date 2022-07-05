@@ -3,7 +3,11 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(library(clpb)).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(lists)).
+:- use_module(library(dcgs)).
+:- use_module(library(format)).
+:- use_module(library(pairs)).
 
 tile([[1,1],
       [1,0]]).
@@ -24,7 +28,7 @@ tile([[1],
       [1]]).
 
 %?- triominoes(4, Vs, _, Sat), sat(Sat).
-%@ false.
+%@    false.
 
 triominoes(N, Vs, Cs, *(Cs)) :-
         matrix(N, N, Rows),
@@ -42,6 +46,13 @@ all_cardinalities([Col|Cols], Vs) -->
 
 key_one(1-_).
 
+include(_, [], []).
+include(G_1, [L|Ls0], Ls) :-
+        (   call(G_1, L) ->
+            Ls = [L|Rs]
+        ;   Ls = Rs
+        ),
+        include(G_1, Ls0, Rs).
 
 matrix(M, N, Ms) :-
         Squares #= M*N,
@@ -73,4 +84,4 @@ zeros(P0, P) --> [0],
         { P1 #= P0 + 1 },
         zeros(P1, P).
 
-%?- matrix(4, 4, Ms), maplist(writeln, Ms).
+%?- matrix(4, 4, Ms), maplist(portray_clause, Ms).

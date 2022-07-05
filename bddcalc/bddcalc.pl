@@ -1,7 +1,9 @@
 :- use_module(library(pio)).
 :- use_module(library(clpb)).
-
-:- set_prolog_flag(double_quotes, codes).
+:- use_module(library(dcgs)).
+:- use_module(library(format)).
+:- use_module(library(assoc)).
+:- use_module(library(charsio)).
 
 eval_actions([]) --> [].
 eval_actions([A|As]) -->
@@ -52,22 +54,22 @@ expr_value(and(E1,E2), Value) -->
 expr_value(biimp(E1,E2), Value) --> expr_value(xor(not(E1),E2), Value).
 
 
-sample_calfile(1, 'c1355.cal').
-sample_calfile(2, 'c1908.cal').
-sample_calfile(3, 'c2670.cal').
-sample_calfile(4, 'c3540.cal').
-sample_calfile(5, 'c432.cal').
-sample_calfile(6, 'c499.cal').
+sample_calfile(1, "c1355.cal").
+sample_calfile(2, "c1908.cal").
+sample_calfile(3, "c2670.cal").
+sample_calfile(4, "c3540.cal").
+sample_calfile(5, "c432.cal").
+sample_calfile(6, "c499.cal").
 
 id(ID) -->
         [L],
-        { (code_type(L, alpha) ; L = 0'_ ) },
+        { (char_type(L, alpha) ; L = '_' ) },
         alnums(Ls),
-        { atom_codes(ID, [L|Ls]) }.
+        { atom_chars(ID, [L|Ls]) }.
 
 alnums([A|As]) -->
         [A],
-        { code_type(A, alnum) },
+        { char_type(A, alnum) },
         alnums(As).
 alnums([]) --> [].
 
@@ -118,8 +120,6 @@ factor(not(E)) --> "not", ws, factor(E).
 comment --> "/*", ..., "*/".
 comment --> [].
 
-... --> [] | [_], ... .
-
-ws --> [W], { code_type(W, space) }, ws.
+ws --> [W], { char_type(W, whitespace) }, ws.
 ws --> [].
 

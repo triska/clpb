@@ -6,7 +6,7 @@ directory, which are copied from the BuDDy distribution.
 
 The interface predicate is **`run(+File)`**. For example:
 
-    ?- run('c499.cal').
+    ?- run("c499.cal").
     t2 = id(id0)
     t3 = id(id4)
     t4 = id(t2)xor id(t3)
@@ -16,7 +16,7 @@ The interface predicate is **`run(+File)`**. For example:
     t201 is a tautology.
     t212 is a tautology.
     t217 is a tautology.
-    true.
+       true.
 
 **Beware**: `bddcalc.pl` uses **internal** predicates of
 `library(clpb)`. Changes in these predicates may therefore require

@@ -1,12 +1,19 @@
 :- use_module(library(clpb)).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(dcgs)).
+:- use_module(library(lists)).
+:- use_module(library(pairs)).
+:- use_module(library(format)).
+:- use_module(library(time)).
+:- use_module(library(assoc)).
+:- use_module(library(between)).
 
 %?- edge(X, Y).
 
 
 cycle(100).
 
-%?- edge(X, Y), writeln(X-Y), false.
+%?- edge(X, Y), portray_clause(X-Y), false.
 
 
 edge(X, Y) :- edge_(1, 2, X, Y).
@@ -32,7 +39,7 @@ edge_(_, N1, X, Y) :-
   For example, the Thue-Morse weights of the integers 1,...,10 are:
 
    ?- thue_morse_weights(10, Ms).
-   %@ Ms = [-1, -1, 1, -1, 1, 1, -1, -1, 1|...].
+   %@    Ms = [-1,-1,1,-1,1,1,-1,-1,1,1].
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
@@ -78,11 +85,18 @@ key_negative(K-_) :- K #< 0.
 
 key_one(1-_).
 
+include(_, [], []).
+include(G_1, [L|Ls0], Ls) :-
+        (   call(G_1, L) ->
+            Ls = [L|Rs]
+        ;   Ls = Rs
+        ),
+        include(G_1, Ls0, Rs).
+
 %?- time(maximum_thue_morse_kernel(Is, Negatives, Max)).
-%@ % 32,886,119 inferences, 6.049 CPU in 6.068 seconds (100% CPU, 5436963 Lips)
-%@ Is = [1, 3, 6, 9, 12, 15, 18, 20, 23|...],
-%@ Negatives = [1, 25, 41, 73, 97],
-%@ Max = 28 .
+%@    % CPU time: 125.236s
+%@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51,...], Negatives = [1,25,41,73,97], Max = 28
+%@ ;  ... .
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    IND(X) = not OR_(u->v){ x_u /\ x_v }
@@ -116,29 +130,23 @@ node_or(Assoc, Node, Var + +(Vars)) :-
 u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 
 %?- kernel(_,_,Sat), sat_count(Sat, C).
-%@ Sat = ~ (... + ... + ... * ... + _G117*_G118+_G118*_G117+_G118*_G119+_G119*_G118+_G20*_G119+_G119*_G20)* (... * ... * (... + ...)* (_G113+ (... + ...))* (_G114+ (... + ... + _G115))* (_G115+ (0+_G114+_G116))* (_G116+ (0+_G115+_G117))* (_G117+ (0+_G116+_G118))* (_G118+ (0+_G117+_G119))* (_G119+ (0+_G20+_G118))),
-%@ C = 1630580875002.
+%@    Sat = ~ +[_A*_B,_B*_A,_B*_C,_C*_B,_C*_D,_D*_C,_D*_E,_E*_D,_E*_F,_F*_E,_F*_G,_G*_F,_G*_H,_H*_G,_H*_I,_I*_H,... * ...,...]* *([_A+ +[_B,_J],_B+ +[_A,_C],_C+ +[_B,_D],_D+ +[_C,_E],_E+ +[_D,_F],_F+ +[_E,_G],_G+ +[_F,_H],_H+ +[_G,_I],_I+ +[_H,_K],_K+ +[_I,_L],_L+ +[_K,_M],_M+ +[_L,_N],_N+ +[_M,_O],_O+ +[_N,_P],_P+ +[_O,...],_Q+ +[...],_R+ + ...,... + ...,...]), C = 1630580875002
+%@ ;  false.
 
-%?- independent(I, Nodes, Vars, _), sat(I), labeling(Vars), writeln(Vars), false.
+%?- independent(I, Nodes, Vars, _), sat(I), labeling(Vars), portray_clause(Vars), false.
 
 run :-
         kernel(_, Vs, K),
         sat(K),
         labeling(Vs),
-        writeln(Vs),
+        portray_clause(Vs),
         false.
 
 %?- time(run).
-%@ [0,0,1,0,0,1]
-%@ [0,1,0,0,1,0]
-%@ [0,1,0,1,0,1]
-%@ [1,0,0,1,0,0]
-%@ [1,0,1,0,1,0]
-%@ % 47,903 inferences, 0.011 CPU in 0.012 seconds (97% CPU, 4236579 Lips)
-%@ false.
-
-%@ [0,0,1,0,0,1]
-%@ [0,1,0,0,1,0]
-%@ [0,1,0,1,0,1]
-%@ % 42,088 inferences, 0.009 CPU in 0.010 seconds (95% CPU, 4611373 Lips)
-%@ false.
+%@ [0,0,1,0,0,1].
+%@ [0,1,0,0,1,0].
+%@ [0,1,0,1,0,1].
+%@ [1,0,0,1,0,0].
+%@ [1,0,1,0,1,0].
+%@    % CPU time: 0.290s
+%@    false.

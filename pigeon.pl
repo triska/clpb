@@ -4,17 +4,20 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(library(clpb)).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(format)).
+:- use_module(library(lists)).
+:- use_module(library(dcgs)).
 
-%?- pigeon(8, 8, Rows, _, Conj), sat(Conj), maplist(labeling, Rows), maplist(writeln, Rows).
-%@ [0,0,0,0,0,0,0,1]
-%@ [0,0,0,0,0,0,1,0]
-%@ [0,0,0,0,0,1,0,0]
-%@ [0,0,0,0,1,0,0,0]
-%@ [0,0,0,1,0,0,0,0]
-%@ [0,0,1,0,0,0,0,0]
-%@ [0,1,0,0,0,0,0,0]
-%@ [1,0,0,0,0,0,0,0]
+%?- pigeon(8, 8, Rows, _, Conj), sat(Conj), maplist(labeling, Rows), maplist(portray_clause, Rows).
+%@ [0,0,0,0,0,0,0,1].
+%@ [0,0,0,0,0,0,1,0].
+%@ [0,0,0,0,0,1,0,0].
+%@ [0,0,0,0,1,0,0,0].
+%@ [0,0,0,1,0,0,0,0].
+%@ [0,0,1,0,0,0,0,0].
+%@ [0,1,0,0,0,0,0,0].
+%@ [1,0,0,0,0,0,0,0].
 
 %?- pigeon(8, 9, _, _, Conj), sat(Conj).
 %@ false.
