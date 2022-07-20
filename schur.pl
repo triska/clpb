@@ -6,16 +6,18 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(library(clpb)).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(lists)).
+:- use_module(library(between)).
+:- use_module(library(time)).
 
 %?- schur_ands_conj(13, _, Sat), time(taut(Sat, T)).
-%@ % 90,526,221 inferences, 9.416 CPU in 9.447 seconds (100% CPU, 9613948 Lips)
-%@ false.
+%@    % CPU time: 200.041s
+%@    false.
 
 %?- schur_ands_conj(14, _, Sat), time(taut(Sat, T)).
-%@ % 37,741,219 inferences, 5.395 CPU in 5.422 seconds (100% CPU, 6995505 Lips)
-%@ T = 0,
-%@ etc.
+%@    % CPU time: 262.648s
+%@    Sat = *(...), T = 0, ... .
 
 
 schur_ands_conj(N, Ands, *(Ands)) :-
@@ -42,3 +44,8 @@ cards1([L|Ls]) --> [card([1],L)], cards1(Ls).
 
 cards012([]) --> [].
 cards012([L|Ls]) --> [card([0,1,2],L)], cards012(Ls).
+
+nth1(I, Ls, E) :-
+        I \== 0,
+        nth0(I, [_|Ls], E),
+        I \== 0.
