@@ -12,11 +12,11 @@
 :- use_module(library(time)).
 
 %?- schur_ands_conj(13, _, Sat), time(taut(Sat, T)).
-%@    % CPU time: 200.041s
+%@    % CPU time: 61.881s
 %@    false.
 
 %?- schur_ands_conj(14, _, Sat), time(taut(Sat, T)).
-%@    % CPU time: 262.648s
+%@    % CPU time: 75.139s
 %@    Sat = *(...), T = 0, ... .
 
 

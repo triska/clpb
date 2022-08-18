@@ -94,7 +94,7 @@ include(G_1, [L|Ls0], Ls) :-
         include(G_1, Ls0, Rs).
 
 %?- time(maximum_thue_morse_kernel(Is, Negatives, Max)).
-%@    % CPU time: 125.236s
+%@    % CPU time: 35.944s
 %@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51,...], Negatives = [1,25,41,73,97], Max = 28
 %@ ;  ... .
 
@@ -148,5 +148,5 @@ run :-
 %@ [0,1,0,1,0,1].
 %@ [1,0,0,1,0,0].
 %@ [1,0,1,0,1,0].
-%@    % CPU time: 0.290s
+%@    % CPU time: 0.063s
 %@    false.
