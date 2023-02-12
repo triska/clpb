@@ -12,11 +12,11 @@
 :- use_module(library(time)).
 
 %?- schur_ands_conj(13, _, Sat), time(taut(Sat, T)).
-%@    % CPU time: 61.881s
+%@    % CPU time: 50.628s
 %@    false.
 
 %?- schur_ands_conj(14, _, Sat), time(taut(Sat, T)).
-%@    % CPU time: 75.139s
+%@    % CPU time: 63.841s
 %@    Sat = *(...), T = 0, ... .
 
 
@@ -44,8 +44,3 @@ cards1([L|Ls]) --> [card([1],L)], cards1(Ls).
 
 cards012([]) --> [].
 cards012([L|Ls]) --> [card([0,1,2],L)], cards012(Ls).
-
-nth1(I, Ls, E) :-
-        I \== 0,
-        nth0(I, [_|Ls], E),
-        I \== 0.
