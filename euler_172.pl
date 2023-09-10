@@ -42,18 +42,18 @@ run :-
 %?- run.
 %@    % CPU time: 0.000s
 %@ len_num(1,9).
-%@    % CPU time: 0.008s
+%@    % CPU time: 0.005s
 %@ len_num(2,90).
-%@    % CPU time: 0.035s
+%@    % CPU time: 0.015s
 %@ len_num(3,900).
-%@    % CPU time: 0.115s
+%@    % CPU time: 0.046s
 %@ len_num(4,8991).
-%@    % CPU time: 0.371s
+%@    % CPU time: 0.155s
 %@ len_num(5,89586).
-%@    % CPU time: 1.064s
+%@    % CPU time: 0.488s
 %@ len_num(6,888570).
-%@    % CPU time: 2.841s
+%@    % CPU time: 1.401s
 %@ len_num(7,8754480).
-%@    % CPU time: 7.288s
+%@    % CPU time: 3.751s
 %@ len_num(8,85480920).
-%@    % CPU time: 17.805s
+%@    % CPU time: 9.623s

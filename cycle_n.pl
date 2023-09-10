@@ -94,8 +94,8 @@ include(G_1, [L|Ls0], Ls) :-
         include(G_1, Ls0, Rs).
 
 %?- time(maximum_thue_morse_kernel(Is, Negatives, Max)).
-%@    % CPU time: 28.930s
-%@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51,...], Negatives = [1,25,41,73,97], Max = 28
+%@    % CPU time: 12.637s
+%@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51|...], Negatives = [1,25,41,73,97], Max = 28
 %@ ;  ... .
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -130,8 +130,7 @@ node_or(Assoc, Node, Var + +(Vars)) :-
 u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 
 %?- kernel(_,_,Sat), sat_count(Sat, C).
-%@    Sat = ~ +[_A*_B,_B*_A,_B*_C,_C*_B,_C*_D,_D*_C,_D*_E,_E*_D,_E*_F,_F*_E,_F*_G,_G*_F,_G*_H,_H*_G,_H*_I,_I*_H,... * ...,...]* *([_A+ +[_B,_J],_B+ +[_A,_C],_C+ +[_B,_D],_D+ +[_C,_E],_E+ +[_D,_F],_F+ +[_E,_G],_G+ +[_F,_H],_H+ +[_G,_I],_I+ +[_H,_K],_K+ +[_I,_L],_L+ +[_K,_M],_M+ +[_L,_N],_N+ +[_M,_O],_O+ +[_N,_P],_P+ +[_O,...],_Q+ +[...],_R+ + ...,... + ...,...]), C = 1630580875002
-%@ ;  false.
+%@    Sat = ~ +[_A*_B,_B*_A,_B*_C,_C*_B,_C*_D,_D*_C,_D*_E,_E*_D,_E*_F,_F*_E,_F*_G,_G*_F,_G*_H,_H*_G,_H*_I,_I*_H,_I*_K|...]* *([_A+ +[_B,_J],_B+ +[_A,_C],_C+ +[_B,_D],_D+ +[_C,_E],_E+ +[_D,_F],_F+ +[_E,_G],_G+ +[_F,_H],_H+ +[_G,_I],_I+ +[_H,_K],_K+ +[_I,_L],_L+ +[_K,_M],_M+ +[_L,_N],_N+ +[_M,_O],_O+ +[_N,_P],_P+ +[_O,_Q|...],_Q+ +[_P|...],_R+ + ...,_4193+ ...|...]), C = 1630580875002.
 
 %?- independent(I, Nodes, Vars, _), sat(I), labeling(Vars), portray_clause(Vars), false.
 
@@ -148,5 +147,5 @@ run :-
 %@ [0,1,0,1,0,1].
 %@ [1,0,0,1,0,0].
 %@ [1,0,1,0,1,0].
-%@    % CPU time: 0.050s
+%@    % CPU time: 0.023s
 %@    false.
