@@ -84,15 +84,12 @@ dominoes(M, N, Vs, *(Cs)) :-
         matrix(M, N, Rows),
         same_length(Rows, Vs),
         transpose(Rows, Cols),
-        phrase(all_cardinalities(Cols, Vs), Cs).
+        maplist(column_card_1(Vs), Cols, Cs).
 
-all_cardinalities([], _) --> [].
-all_cardinalities([Col|Cols], Vs) -->
-        { pairs_keys_values(Pairs0, Col, Vs),
-          tfilter(key_one_t, Pairs0, Pairs),
-          pairs_values(Pairs, Cs) },
-        [card([1], Cs)],
-        all_cardinalities(Cols, Vs).
+column_card_1(Vs, Col, card([1],Cs)) :-
+        pairs_keys_values(Pairs0, Col, Vs),
+        tfilter(key_one_t, Pairs0, Pairs),
+        pairs_values(Pairs, Cs).
 
 key_one_t(Key-_, T) :- =(Key, 1, T).
 
