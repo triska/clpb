@@ -80,11 +80,11 @@ tile([[1],
 %       [1]]).
 
 
-dominoes(M, N, Vs, *(Cs)) :-
+dominoes(M, N, Vs, *(Cards)) :-
         matrix(M, N, Rows),
         same_length(Rows, Vs),
         transpose(Rows, Cols),
-        maplist(column_card_1(Vs), Cols, Cs).
+        maplist(column_card_1(Vs), Cols, Cards).
 
 column_card_1(Vs, Col, card([1],Cs)) :-
         pairs_keys_values(Pairs0, Col, Vs),
