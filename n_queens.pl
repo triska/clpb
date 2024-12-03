@@ -1,37 +1,42 @@
 :- use_module(library(clpb)).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(lists)).
+:- use_module(library(dcgs)).
+:- use_module(library(time)).
+:- use_module(library(format)).
 
 %?- run.
 %@ |queens(0)| = 1           after 0.00s
 %@ |queens(1)| = 1           after 0.00s
 %@ |queens(2)| = 0           after 0.00s
-%@ |queens(3)| = 0           after 0.01s
-%@ |queens(4)| = 2           after 0.12s
-%@ |queens(5)| = 10          after 0.88s
-%@ |queens(6)| = 4           after 6.69s
-%@ |queens(7)| = 40          after 39.58s
+%@ |queens(3)| = 0           after 0.08s
+%@ |queens(4)| = 2           after 0.55s
+%@ |queens(5)| = 10          after 4.20s
+%@ |queens(6)| = 4           after 34.45s
+%@ |queens(7)| = 40          after 224.07s
 %@ etc.
 
 
-%?- n_queens(4, Qs, _, Sat), sat(Sat), append(Qs, Vs), labeling(Vs), maplist(writeln, Qs).
+%?- n_queens(4, Qs, _, Sat), sat(Sat), append(Qs, Vs), labeling(Vs), maplist(portray_clause, Qs).
 %@ [0,0,1,0]
 %@ [1,0,0,0]
 %@ [0,0,0,1]
 %@ [0,1,0,0]
 %@ etc.
 
+:- use_module(library(debug)).
 run :-
         length(_, N),
-        statistics(cputime, T0),
+        statistics(runtime, [T0,_]),
         n_queens(N, Qs, _, Sat),
         append(Qs, Vs),
         (   sat(Sat) ->
             sat_count(+[1|Vs], C)
         ;   C = 0
         ),
-        statistics(cputime, T1),
+        statistics(runtime, [T1|_]),
         Time is T1 - T0,
-        format("|queens(~w)| = ~w  ~25| after ~2fs\n", [N,C,Time]),
+        format("|queens(~w)| = ~w ~t~25| after ~2fs\n", [N,C,Time/1000]),
         false.
 
 n_queens(N, Qs, Ands, *(Ands)) :-
