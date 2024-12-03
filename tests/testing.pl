@@ -1,6 +1,9 @@
 :- use_module(clpb).
+:- use_module(library(dcgs)).
+:- use_module(library(lists)).
+:- use_module(library(format)).
 
-:- set_prolog_flag(clpb_validation, true).
+clpb:validation.
 
 sat(_)  --> [].
 sat(X*Y) --> [_], sat(X), sat(Y).
