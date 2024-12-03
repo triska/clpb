@@ -7,7 +7,7 @@ This is the case in many covering tasks.
 
 [**clpb.pl**](clpb.pl) is a ZDD-based variant of `library(clpb)`. It
 is mostly a drop-in-replacement for the library that ships with
-SWI-Prolog, with the following important difference: Before using
+Scryer&nbsp;Prolog, with the following important difference: Before using
 `sat/1`, you *must* call `zdd_set_vars/1` with a list of all Boolean
 variables that occur in your model.
 
@@ -48,8 +48,8 @@ for the number of *Triomino&nbsp;tilings* of a 9&times;12 grid.
 
 [**euler_161.pl**](euler_161.pl) shows how this can be solved with the
 ZDD-based variant of CLP(B)&nbsp;constraints. Using an Intel
-Core&nbsp;i7 CPU (2.67&nbsp;GHz), you know after about 2&nbsp;days
-of computation time: There are exactly
+Core&nbsp;i7 CPU (2.67&nbsp;GHz), you know after a few&nbsp;days of
+computation&nbsp;time: There are exactly
 20,574,308,184,277,971&nbsp;ways to do&nbsp;it.
 
 One of these solutions, picked at random:
@@ -58,9 +58,7 @@ One of these solutions, picked at random:
 
 ## Limitations
 
-There are currently some limitations, mostly due to shortcomings of
-SWI-Prolog's interface for attributed variables (see
-[Issue&nbsp;#14](https://github.com/SWI-Prolog/roadmap/issues/14)):
+There are currently some limitations:
 
 - unification of CLP(B) variables is *not* yet implemented in this variant
 - `labeling/1` does *not* work yet.
