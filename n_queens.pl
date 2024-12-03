@@ -9,11 +9,12 @@
 %@ |queens(0)| = 1           after 0.00s
 %@ |queens(1)| = 1           after 0.00s
 %@ |queens(2)| = 0           after 0.00s
-%@ |queens(3)| = 0           after 0.08s
-%@ |queens(4)| = 2           after 0.55s
-%@ |queens(5)| = 10          after 4.20s
-%@ |queens(6)| = 4           after 34.45s
-%@ |queens(7)| = 40          after 224.07s
+%@ |queens(3)| = 0           after 0.01s
+%@ |queens(4)| = 2           after 0.08s
+%@ |queens(5)| = 10          after 0.51s
+%@ |queens(6)| = 4           after 2.10s
+%@ |queens(7)| = 40          after 10.34s
+%@ |queens(8)| = 92          after 48.73s
 %@ etc.
 
 
@@ -24,16 +25,11 @@
 %@ [0,1,0,0]
 %@ etc.
 
-:- use_module(library(debug)).
 run :-
         length(_, N),
         statistics(runtime, [T0,_]),
-        n_queens(N, Qs, _, Sat),
-        append(Qs, Vs),
-        (   sat(Sat) ->
-            sat_count(+[1|Vs], C)
-        ;   C = 0
-        ),
+        n_queens(N, _, _, Sat),
+        sat_count(Sat, C),
         statistics(runtime, [T1|_]),
         Time is T1 - T0,
         format("|queens(~w)| = ~w ~t~25| after ~2fs\n", [N,C,Time/1000]),
