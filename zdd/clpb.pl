@@ -1,7 +1,7 @@
 /*
     Author:        Markus Triska
-    E-mail:        triska@gmx.at
-    Copyright (C): 2014, 2015 Markus Triska
+    E-mail:        triska@metalevel.at
+    Copyright (C): 2014-2024 Markus Triska
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -28,8 +28,8 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    CLP(B): Constraint Logic Programming over Boolean variables.
 
-   This is like library(clpb) which ships with SWI-Prolog, except that
-   we use Zero-suppressed Binary Decision Diagrams (ZDDs) here.
+   This is like library(clpb) which ships with Scryer Prolog, except
+   that we use Zero-suppressed Binary Decision Diagrams (ZDDs) here.
 
    ZDDs can save a lot of memory in situations where solutions have
    most Boolean variables equal to 0. This is the case in many
@@ -56,8 +56,8 @@
    The current version is intended for tasks where library(clpb) runs
    out of memory, and mostly for counting solutions with sat_count/2.
 
-   ATTENTION: sat_count/2 differs from the one in SWI's library(clpb)
-              if there are CLP(B) variables outside the expression!
+   ATTENTION: sat_count/2 differs from the one in Scryer Prolog's
+   library(clpb) if there are CLP(B) variables outside the expression!
 
    Current limitations:
 
@@ -79,9 +79,90 @@
                  sat_count/2
                 ]).
 
-:- use_module(library(error)).
+:- use_module(library(error), [domain_error/3, type_error/3]).
 :- use_module(library(assoc)).
-:- use_module(library(apply_macros)).
+:- use_module(library(lists)).
+:- use_module(library(between)).
+:- use_module(library(pairs)).
+:- use_module(library(dcgs)).
+:- use_module(library(atts)).
+:- use_module(library(iso_ext)).
+:- use_module(library(debug)).
+
+:- attribute
+        clpb/1,
+        clpb_bdd/1,
+        clpb_hash/1,
+        clpb_visited/1.
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Compatibility predicates.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+must_be(What, Term) :- must_be(What, unknown(Term)-1, Term).
+
+must_be(acyclic, Where, Term) :- !,
+        (   acyclic_term(Term) ->
+            true
+        ;   domain_error(acyclic_term, Term, Where)
+        ).
+must_be(list, Where, Term) :- !,
+        (   acyclic_term(Term), clpz_list(Term, Where) -> true
+        ;   type_error(list, Term, Where)
+        ).
+must_be(list(What), Where, Term) :- !,
+        must_be(list, Where, Term),
+        maplist(must_be(What, Where), Term).
+must_be(ground, _, Term) :- !,
+        functor(Term, _, _).
+
+must_be(Type, _, Term) :-
+        error:must_be(Type, Term).
+
+clpz_list(Nil, _) :- Nil == [].
+clpz_list(Ls, Where) :-
+    (   var(Ls) ->
+        instantiation_error(Ls, Where)
+    ;   Ls = [_|Rest],
+        clpz_list(Rest, Where)
+    ).
+
+
+instantiation_error(Term) :- instantiation_error(Term, unknown(Term)-1).
+
+instantiation_error(_, Goal-Arg) :-
+	throw(error(instantiation_error, instantiation_error(Goal, Arg))).
+
+
+domain_error(Expectation, Term) :-
+        domain_error(Expectation, Term, unknown(Term)-1).
+
+
+type_error(Expectation, Term) :-
+        type_error(Expectation, Term, unknown(Term)-1).
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Compatibility predicates.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+:- meta_predicate(include(1, ?, ?)).
+
+include(_, [], []).
+include(Goal, [L|Ls0], Ls) :-
+        (   call(Goal, L) ->
+            Ls = [L|Rest]
+        ;   Ls = Rest
+        ),
+        include(Goal, Ls0, Rest).
+
+goal_expansion(get_attr(Var, Module, Value), (var(Var),get_atts(Var, Access))) :-
+        Access =.. [Module,Value].
+
+goal_expansion(put_attr(Var, Module, Value), put_atts(Var, Access)) :-
+        Access =.. [Module,Value].
+
+goal_expansion(del_attr(Var, Module), (var(Var) -> put_atts(Var, -Access);true)) :-
+        Access =.. [Module,_].
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -532,35 +613,7 @@ state(S0, S), [S] --> [S0].
    Current limitation:
    ===================
 
-   The current interface of attributed variables is not general enough
-   to express what we need. See library(clpb) for more information.
-
-   For ZDDs, SWI's interface is even more problematic, because
-   simultaneous unifications are hard to reason about.
-
-   Consider for example:
-
-      ?- zdd_set_vars([A,B]), sat(A + ~B).
-
-   yielding the ZDD:
-
-         node(6)- (A->node(0);true),
-         node(0)- (B->true;true),
-
-   If we unify A with 0, then the ZDD becomes 1. Variables that do not
-   occur in the ZDD, in particular B, must of course be 0.
-
-   However, if we have a simultaneous unification, as in:
-
-      ?- zdd_set_vars([A,B]), sat(A + ~B), [A,B]=[0,1].
-
-   then we can no longer explicitly collect the "variables that do not
-   occur in the ZDD", because they are no longer variables.
-
-   Thus, we would have to store the branching variable *and* its
-   ground index in nodes, using more memory.
-
-   Therefore, unification of variables is not yet fully implemented.
+   Unification of variables is not yet fully implemented.
 
    If you have no simultaneous unifications, you can comment out the
    exception instantiation_not_yet_supported and hence use labeling/1.
@@ -568,27 +621,34 @@ state(S0, S), [S] --> [S0].
    Aliasing is definitely not supported.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-attr_unify_hook(index_root(I,Root), Other) :-
-        (   integer(Other) ->
-            throw(instantiation_not_supported),
-            (   between(0, 1, Other) ->
-                restrict_in_all_bdds(I, Root, Other)
-            ;   no_truth_value(Other)
+verify_attributes(Var, Other, Gs) :-
+        % can the invocations of verify_attributes/3 be reduced?
+        %portray_clause(verify(Var=Other)),
+        (   get_attr(Var, clpb, index_root(I,Root)) ->
+            %portray_clause(verify(index_root(I,Root))),
+            (   integer(Other) ->
+                throw(instantiation_not_supported),
+                (   between(0, 1, Other) ->
+                    restrict_in_all_bdds(I, Root, Other)
+                ;   no_truth_value(Other)
+                )
+            ;   throw(aliasing_not_supported),
+                parse_sat(Other, OtherSat),
+                root_get_formula_bdd(Root, Sat0, _),
+                Sat = Sat0*OtherSat,
+                sat_roots(Sat, Roots),
+                maplist(root_rebuild_bdd, Roots),
+                taut(True),
+                roots_and(Roots, 1-True, And-BDD1),
+                maplist(del_bdd, Roots),
+                maplist(=(NewRoot), Roots),
+                root_put_formula_bdd(NewRoot, And, BDD1),
+                is_bdd(BDD1),
+                satisfiable_bdd(BDD1)
             )
-        ;   throw(aliasing_not_supported),
-            parse_sat(Other, OtherSat),
-            root_get_formula_bdd(Root, Sat0, _),
-            Sat = Sat0*OtherSat,
-            sat_roots(Sat, Roots),
-            maplist(root_rebuild_bdd, Roots),
-            taut(True),
-            roots_and(Roots, 1-True, And-BDD1),
-            maplist(del_bdd, Roots),
-            maplist(=(NewRoot), Roots),
-            root_put_formula_bdd(NewRoot, And, BDD1),
-            is_bdd(BDD1),
-            satisfiable_bdd(BDD1)
-        ).
+        ;   true
+        ),
+        Gs = [].
 
 restrict_in_all_bdds(VI, Root, Other) :-
         all_variables_in_index_order(Vs),
@@ -632,6 +692,7 @@ bdd_restriction_(Node, VI, Value, Res) -->
                 (   { I0 =:= VI } ->
                     (   { Value =:= 0 } -> { Res = Low }
                     ;   { Value =:= 1 } -> { Res = High }
+                    ;   { throw(cannot_happen) }
                     )
                 ;   { I0 > VI } -> { Res = Node }
                 ;   state(G0), { get_assoc(ID, G0, Res) } -> []
@@ -666,9 +727,9 @@ bdd_nodes(VPred, BDD, Ns) :-
 
 bdd_nodes_(VPred, Node) -->
         (   { integer(Node) ;  with_aux(is_visited, Node) } -> []
-        ;   { call(VPred, Var),
-              with_aux(put_visited, Node),
-              node_var_low_high(Node, Var, Low, High) },
+        ;   { with_aux(put_visited, Node),
+              node_var_low_high(Node, Var, Low, High),
+              call(VPred, Var) },
             [Node],
             bdd_nodes_(VPred, Low),
             bdd_nodes_(VPred, High)
@@ -706,11 +767,15 @@ with_aux(Pred, Node) :-
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Internal consistency checks.
 
-   To enable these checks, set the flag clpb_validation to true.
+   To enable these checks, define the fact clpb_validation.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+:- dynamic(clpb_validation/0).
+
+%clpb_validation.
+
 is_bdd(BDD) :-
-        (   current_prolog_flag(clpb_validation, true) ->
+        (   clpb_validation ->
             bdd_ites(BDD, ITEs),
             % length(ITEs, Len),
             % portray_clause(Len),
@@ -850,6 +915,8 @@ attribute_goals(Var) -->
         (   { root_get_formula_bdd(Root, _, BDD) } ->
 %            [bdd=BDD],
             { del_bdd(Root),
+              bdd_variables(BDD, Vs),
+              maplist(del_clpb, Vs),
               bdd_nodes(BDD, Nodes) },
             nodes(Nodes)
         ;   []
@@ -870,30 +937,37 @@ node_projection(Node, Projection) :-
         ;   Projection = ID
         ).
 
+del_clpb(Var) :-
+        %del_attr(Var, clpb),
+        del_attr(Var, clpb_hash).
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Global variables for unique node and variable IDs.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-make_clpb_var('$clpb_next_var') :- nb_setval('$clpb_next_var', 0).
+make_clpb_var('$clpb_next_var') :- bb_put('$clpb_next_var', 0).
 
-make_clpb_var('$clpb_next_node') :- nb_setval('$clpb_next_node', 0).
+make_clpb_var('$clpb_next_node') :- bb_put('$clpb_next_node', 0).
 
-make_clpb_var('$clpb_vars') :-
-        throw('Please use zdd_set_vars/1 before posting constraints').
-
-:- multifile user:exception/3.
-
-user:exception(undefined_global_variable, Name, retry) :-
-        make_clpb_var(Name), !.
+:- initialization((make_clpb_var(_),false;true)).
 
 clpb_next_id(Var, ID) :-
-        b_getval(Var, ID),
+        bb_get(Var, ID),
         Next is ID + 1,
-        b_setval(Var, Next).
+        bb_b_put(Var, Next).
+
+:- use_module(library(format)).
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+?- clpb:zdd_set_vars([X,Y]).
+
+?- clpb:zdd_set_vars([X,Y,Z]), sat(card([2],[X,Y,Z])).
+
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 zdd_set_vars(Vars) :-
         must_be(list(var), Vars),
-        b_setval('$clpb_vars', Vars),
+        bb_b_put('$clpb_vars', Vars),
         maplist(enumerate_variable, Vars),
         sat(+[1|Vars]).
 
@@ -919,37 +993,5 @@ projection_([Var|Vars], V, Proj) :-
         ).
 
 all_variables_in_index_order(Vars) :-
-        b_getval('$clpb_vars', Vars0),
+        bb_get('$clpb_vars', Vars0),
         include(var, Vars0, Vars).
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   The variable attributes below are not used as constraints by this
-   library. Project remaining attributes to empty lists of residuals.
-
-   Because accessing these hooks is basically a cross-module call, we
-   must declare them public.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-:- public
-        clpb_hash:attr_unify_hook/2,
-        clpb_bdd:attribute_goals//1,
-        clpb_hash:attribute_goals//1.
-
-   clpb_hash:attr_unify_hook(_,_).  % OK
-
-    clpb_bdd:attribute_goals(_) --> [].
-   clpb_hash:attribute_goals(_) --> [].
-
-% clpb_hash:attribute_goals(Var) -->
-%         { get_attr(Var, clpb_hash, Assoc),
-%           assoc_to_list(Assoc, List0),
-%           maplist(node_portray, List0, List) }, [Var-List].
-
-% node_portray(Key-Node, Key-Node-ite(Var,High,Low)) :-
-%         node_var_low_high(Node, Var, Low, High).
-
-:- multifile
-        sandbox:safe_global_variable/1.
-
-sandbox:safe_global_variable('$clpb_next_var').
-sandbox:safe_global_variable('$clpb_next_node').
