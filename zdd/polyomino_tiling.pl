@@ -3,22 +3,29 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(clpb).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(lists)).
+:- use_module(library(pairs)).
+:- use_module(library(dcgs)).
+:- use_module(library(reif)).
+:- use_module(library(time)).
+:- use_module(library(format)).
+:- use_module(library(between)).
 
 
 %?- run.
-%@ % 193 inferences, 0.000 CPU in 0.000 seconds (94% CPU, 2539474 Lips)
+%@ 0=1.
+%@    % CPU time: 0.000s, 552 inferences
 %@ 1=1.
-%@ % 141,442 inferences, 0.026 CPU in 0.030 seconds (87% CPU, 5385600 Lips)
+%@    % CPU time: 0.000s, 1_909 inferences
 %@ 2=11.
-%@ % 44,751 inferences, 0.005 CPU in 0.005 seconds (99% CPU, 9646691 Lips)
+%@    % CPU time: 0.013s, 63_662 inferences
 %@ 3=583.
-%@ % 840,179 inferences, 0.094 CPU in 0.096 seconds (99% CPU, 8909073 Lips)
+%@    % CPU time: 0.240s, 1_179_806 inferences
 %@ 4=177332.
-%@ % 8,620,032 inferences, 0.843 CPU in 0.850 seconds (99% CPU, 10224477 Lips)
+%@    % CPU time: 2.343s, 11_429_112 inferences
 %@ 5=329477745.
-%@ % 74,118,376 inferences, 8.260 CPU in 8.311 seconds (99% CPU, 8973604 Lips)
-%@ etc.
+%@    % CPU time: 18.502s, 91_996_815 inferences
 
 run :-
         length(_, N),
@@ -28,7 +35,7 @@ run :-
               portray_clause(N=Count))),
         false.
 
-%?- between(1,10, Cols), polyominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
+%?- between(1,10, Cols), polyominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), portray_clause(Cols=N), false.
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Monomino
@@ -78,12 +85,12 @@ polyominoes(M, N, Vs, *(Cs)) :-
 all_cardinalities([], _) --> [].
 all_cardinalities([Col|Cols], Vs) -->
         { pairs_keys_values(Pairs0, Col, Vs),
-          include(key_one, Pairs0, Pairs),
+          tfilter(key_one_t, Pairs0, Pairs),
           pairs_values(Pairs, Cs) },
         [card([1], Cs)],
         all_cardinalities(Cols, Vs).
 
-key_one(1-_).
+key_one_t(K-_, T) :- =(K, 1, T).
 
 
 matrix(M, N, Ms) :-
@@ -117,4 +124,4 @@ zeros(P0, P) --> [0],
         { P1 #= P0 + 1 },
         zeros(P1, P).
 
-%?- matrix(4, 4, Ms), maplist(writeln, Ms).
+%?- matrix(4, 4, Ms), maplist(portray_clause, Ms).

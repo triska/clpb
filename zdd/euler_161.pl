@@ -4,14 +4,20 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(clpb).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(pairs)).
+:- use_module(library(lists)).
+:- use_module(library(between)).
+:- use_module(library(dcgs)).
+:- use_module(library(format)).
+:- use_module(library(reif)).
 
 euler_161(Count) :-
         triominoes(9, 12, Vs, Conj),
         zdd_set_vars(Vs),
         sat_count(Conj, Count).
 
-%?- between(1,10, Cols), triominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), writeln(Cols=N), false.
+%?- between(1,10, Cols), triominoes(2, Cols, Vs, Conj), zdd_set_vars(Vs), sat_count(Conj, N), portray_clause(Cols=N), false.
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,12 +52,12 @@ triominoes(M, N, Vs, *(Cs)) :-
 all_cardinalities([], _) --> [].
 all_cardinalities([Col|Cols], Vs) -->
         { pairs_keys_values(Pairs0, Col, Vs),
-          include(key_one, Pairs0, Pairs),
+          tfilter(key_one_t, Pairs0, Pairs),
           pairs_values(Pairs, Cs) },
         [card([1], Cs)],
         all_cardinalities(Cols, Vs).
 
-key_one(1-_).
+key_one_t(K-_, T) :- =(K, 1, T).
 
 
 matrix(M, N, Ms) :-
@@ -85,4 +91,4 @@ zeros(P0, P) --> [0],
         { P1 #= P0 + 1 },
         zeros(P1, P).
 
-%?- matrix(4, 4, Ms), maplist(writeln, Ms).
+%?- matrix(4, 4, Ms), maplist(portray_clause, Ms).

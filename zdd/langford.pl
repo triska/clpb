@@ -4,7 +4,13 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(clpb).
-:- use_module(library(clpfd)).
+:- use_module(library(clpz)).
+:- use_module(library(lists)).
+:- use_module(library(format)).
+:- use_module(library(dcgs)).
+:- use_module(library(reif)).
+:- use_module(library(between)).
+:- use_module(library(pairs)).
 
 run :-
         length(_, N),
@@ -37,12 +43,12 @@ langford(N, Vs, *(Sats)) :-
 sats([], _) --> [].
 sats([Col|Cols], Vs0) -->
         { pairs_keys_values(Pairs0, Col, Vs0),
-          include(key_one, Pairs0, Pairs),
+          tfilter(key_one_t, Pairs0, Pairs),
           pairs_values(Pairs, Vs) },
         [card([1],Vs)],
         sats(Cols, Vs0).
 
-key_one(1-_).
+key_one_t(K-_, T) :- =(K, 1, T).
 
 row(N, K) -->
         n_zeros(_), [1], n_zeros(K), [1], n_zeros(_), % langford sequence
@@ -56,6 +62,6 @@ n_zeros(0)  --> [].
 n_zeros(K0) --> [0], { K0 #> 0, K #= K0 - 1 }, n_zeros(K).
 
 %?- length(Ls, 10), phrase(row(4, 3), Ls).
-%@ Ls = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0] ;
-%@ Ls = [0, 1, 0, 0, 0, 1, 0, 0, 1, 0] ;
-%@ false.
+%@    Ls = [1,0,0,0,1,0,0,0,1,0]
+%@ ;  Ls = [0,1,0,0,0,1,0,0,1,0]
+%@ ;  false.
