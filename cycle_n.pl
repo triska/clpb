@@ -1,31 +1,50 @@
 :- use_module(library(clpb)).
 :- use_module(library(clpz)).
-:- use_module(library(dcgs)).
 :- use_module(library(lists)).
+:- use_module(library(dcgs)).
+:- use_module(library(between)).
 :- use_module(library(pairs)).
-:- use_module(library(format)).
 :- use_module(library(time)).
 :- use_module(library(assoc)).
-:- use_module(library(between)).
+:- use_module(library(reif)).
 
-%?- edge(X, Y).
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Independent sets, maximal independent sets (kernels) and maximal
+   independent sets with maximum weight of the Cycle graph C_100.
 
+   Example queries, tested with Scryer Prolog:
+
+   (1) Independent sets:
+
+       ?- time((independent_set(I,_),sat_count(I,N))).
+       %@    % CPU time: 0.618s, 2_654_435 inferences
+       %@    I = *(...), N = 792070839848372253127.
+
+   (2) Maximal independent sets:
+
+       ?- time((kernel(K,_),sat_count(K,N))).
+       %@    % CPU time: 2.773s, 12_660_750 inferences
+       %@    K = *(...)* *(...), N = 1630580875002.
+
+   (3) Maximal independent sets with maximum weight:
+
+       %?- time(maximum_thue_morse_kernel(Is, Negatives, Max)).
+       %@    % CPU time: 10.228s, 45_547_552 inferences
+       %@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51|...], Negatives = [1,25,41,73,97], Max = 28
+       %@ ;  ... .
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Cycle graph C_100.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 cycle(100).
 
-%?- edge(X, Y), portray_clause(X-Y), false.
-
-
-edge(X, Y) :- edge_(1, 2, X, Y).
-
-edge(X, Y) :-
-        cycle(Limit),
-        (   X = 1, Y = Limit
-        ;   X = Limit, Y = 1
-        ).
+edge(X, Y)     :- edge_(1, 2, X, Y).
+edge(1, Limit) :- cycle(Limit).
 
 edge_(A, B, A, B).
-edge_(B, A, A, B).
 edge_(_, N1, X, Y) :-
         N2 #= N1 + 1,
         cycle(Limit),
@@ -65,87 +84,74 @@ thue_morse_weights(N, Ms) :-
 neg1_pow(Card, Pow) :- Pow #= (-1)^Card.
 
 maximum_thue_morse_kernel(Is, Negatives, Max) :-
-        kernel(_, Vs, K),
+        kernel(K, Assoc),
+        assoc_to_values(Assoc, Vs),
         sat(K),
         length(Vs, L),
         thue_morse_weights(L, Weights),
         weighted_maximum(Weights, Vs, Max),
         numlist(1, L, Ns),
         pairs_keys_values(Pairs0, Vs, Ns),
-        include(key_one, Pairs0, Pairs),
+        tfilter(key_one_t, Pairs0, Pairs),
         pairs_values(Pairs, Is),
         pairs_keys_values(WNs, Weights, Ns),
         pairs_keys_values(WPairs0, Vs, WNs),
-        include(key_one, WPairs0, WPairs1),
+        tfilter(key_one_t, WPairs0, WPairs1),
         pairs_values(WPairs1, WPairs2),
-        include(key_negative, WPairs2, WPairs),
+        tfilter(key_negative_t, WPairs2, WPairs),
         pairs_values(WPairs, Negatives).
 
-key_negative(K-_) :- K #< 0.
+key_negative_t(K-_, T) :- clpz_t(K #< 0, T).
 
-key_one(1-_).
-
-include(_, [], []).
-include(G_1, [L|Ls0], Ls) :-
-        (   call(G_1, L) ->
-            Ls = [L|Rs]
-        ;   Ls = Rs
-        ),
-        include(G_1, Ls0, Rs).
+key_one_t(K-_, T) :- =(K, 1, T).
 
 %?- time(maximum_thue_morse_kernel(Is, Negatives, Max)).
-%@    % CPU time: 12.637s
+%@    % CPU time: 10.104s, 45_547_575 inferences
+%@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51|...], Negatives = [1,25,41,73,97], Max = 28
+%@ ;  % CPU time: 0.016s, 63_185 inferences
+%@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51|...], Negatives = [1,25,41,73,94], Max = 28
+%@ ;  % CPU time: 0.099s, 319_668 inferences
 %@    Is = [1,3,6,9,12,15,18,20,23,25,27,30,33,36,39,41,43,46,48,51|...], Negatives = [1,25,41,73,97], Max = 28
 %@ ;  ... .
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   IND(X) = not OR_(u->v){ x_u /\ x_v }
+   Independent set:
+
+   IND(X) = not OR_(u->v){ x_u /\ x_v } = AND_(u->v){not x_u \/ not x_v}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-independent(~ +(Ands), Nodes, Vars, Assoc) :-
-        findall(A-B, edge(A, B), Edges),
-        pairs_keys_values(Edges, Ks, Vs),
-        append(Ks, Vs, Ns0),
-        sort(Ns0, Nodes),
-        pairs_keys_values(Pairs, Nodes, Vars),
+%?- time((independent_set(I,_),sat_count(I,N))).
+%@    % CPU time: 0.579s, 2_654_458 inferences
+%@    I = *(...), N = 792070839848372253127.
+
+
+independent_set(*(NBs), Assoc) :-
+        findall(U-V, edge(U, V), Edges),
+        setof(U, V^(member(U-V, Edges);member(V-U, Edges)), Nodes),
+        pairs_keys_values(Pairs, Nodes, _),
         list_to_assoc(Pairs, Assoc),
-        maplist(edge_and(Assoc), Edges, Ands).
+        maplist(not_both(Assoc), Edges, NBs).
 
+not_both(Assoc, U-V, ~BU + ~BV) :-
+        get_assoc(U, Assoc, BU),
+        get_assoc(V, Assoc, BV).
 
-edge_and(Assoc, A0-B0, A*B) :-
-        get_assoc(A0, Assoc, A),
-        get_assoc(B0, Assoc, B).
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Kernels.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-kernel(Nodes, Vars, Ind* *(Ors)) :-
-        independent(Ind, Nodes, Vars, Assoc),
+kernel(Ind* *(Ors), Assoc) :-
+        independent_set(Ind, Assoc),
+        assoc_to_keys(Assoc, Nodes),
         maplist(node_or(Assoc), Nodes, Ors).
 
 node_or(Assoc, Node, Var + +(Vars)) :-
         get_assoc(Node, Assoc, Var),
-        findall(U-Node, edge(U, Node), Edges0),
-        sort(Edges0, Edges),
+        setof(U-Node, (edge(U, Node);edge(Node,U)), Edges),
         pairs_keys(Edges, Us),
         maplist(u_to_var(Assoc), Us, Vars).
 
 u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 
-%?- kernel(_,_,Sat), sat_count(Sat, C).
-%@    Sat = ~ +[_A*_B,_B*_A,_B*_C,_C*_B,_C*_D,_D*_C,_D*_E,_E*_D,_E*_F,_F*_E,_F*_G,_G*_F,_G*_H,_H*_G,_H*_I,_I*_H,_I*_K|...]* *([_A+ +[_B,_J],_B+ +[_A,_C],_C+ +[_B,_D],_D+ +[_C,_E],_E+ +[_D,_F],_F+ +[_E,_G],_G+ +[_F,_H],_H+ +[_G,_I],_I+ +[_H,_K],_K+ +[_I,_L],_L+ +[_K,_M],_M+ +[_L,_N],_N+ +[_M,_O],_O+ +[_N,_P],_P+ +[_O,_Q|...],_Q+ +[_P|...],_R+ + ...,_4193+ ...|...]), C = 1630580875002.
-
-%?- independent(I, Nodes, Vars, _), sat(I), labeling(Vars), portray_clause(Vars), false.
-
-run :-
-        kernel(_, Vs, K),
-        sat(K),
-        labeling(Vs),
-        portray_clause(Vs),
-        false.
-
-%?- time(run).
-%@ [0,0,1,0,0,1].
-%@ [0,1,0,0,1,0].
-%@ [0,1,0,1,0,1].
-%@ [1,0,0,1,0,0].
-%@ [1,0,1,0,1,0].
-%@    % CPU time: 0.023s
-%@    false.
+%?- kernel(Sat, _), sat_count(Sat, C).
+%@    Sat = *(...)* *(...), C = 1630580875002.
