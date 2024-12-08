@@ -8,6 +8,7 @@
 :- use_module(library(dcgs)).
 :- use_module(library(format)).
 :- use_module(library(pairs)).
+:- use_module(library(reif)).
 
 tile([[1,1],
       [1,0]]).
@@ -39,20 +40,12 @@ triominoes(N, Vs, Cs, *(Cs)) :-
 all_cardinalities([], _) --> [].
 all_cardinalities([Col|Cols], Vs) -->
         { pairs_keys_values(Pairs0, Col, Vs),
-          include(key_one, Pairs0, Pairs),
+          tfilter(key_one_t, Pairs0, Pairs),
           pairs_values(Pairs, Cs) },
         [card([1], Cs)],
         all_cardinalities(Cols, Vs).
 
-key_one(1-_).
-
-include(_, [], []).
-include(G_1, [L|Ls0], Ls) :-
-        (   call(G_1, L) ->
-            Ls = [L|Rs]
-        ;   Ls = Rs
-        ),
-        include(G_1, Ls0, Rs).
+key_one_t(K-_, T) :- =(K, 1, T).
 
 matrix(M, N, Ms) :-
         Squares #= M*N,
