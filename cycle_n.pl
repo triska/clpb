@@ -7,6 +7,7 @@
 :- use_module(library(time)).
 :- use_module(library(assoc)).
 :- use_module(library(reif)).
+:- use_module(library(lambda)).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Independent sets, maximal independent sets (kernels) and maximal
@@ -16,15 +17,15 @@
 
    (1) Independent sets:
 
-       ?- time((independent_set(I,_),sat_count(I,N))).
-       %@    % CPU time: 0.618s, 2_654_435 inferences
-       %@    I = *(...), N = 792070839848372253127.
+       ?- N+\time((independent_set(I,_),sat_count(I,N))).
+       %@    % CPU time: 0.616s, 2_654_474 inferences
+       %@    N = 792070839848372253127.
 
    (2) Maximal independent sets:
 
-       ?- time((kernel(K,_),sat_count(K,N))).
-       %@    % CPU time: 2.773s, 12_660_750 inferences
-       %@    K = *(...)* *(...), N = 1630580875002.
+       ?- N+\time((kernel(K,_),sat_count(K,N))).
+       %@    % CPU time: 2.793s, 12_660_789 inferences
+       %@    N = 1630580875002.
 
    (3) Maximal independent sets with maximum weight:
 
@@ -120,9 +121,9 @@ key_one_t(K-_, T) :- =(K, 1, T).
    IND(X) = not OR_(u->v){ x_u /\ x_v } = AND_(u->v){not x_u \/ not x_v}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-%?- time((independent_set(I,_),sat_count(I,N))).
-%@    % CPU time: 0.579s, 2_654_458 inferences
-%@    I = *(...), N = 792070839848372253127.
+%?- N+\time((independent_set(I,_),sat_count(I,N))).
+%@    % CPU time: 0.615s, 2_654_474 inferences
+%@    N = 792070839848372253127.
 
 
 independent_set(*(NBs), Assoc) :-
@@ -153,5 +154,5 @@ node_or(Assoc, Node, Var + +(Vars)) :-
 
 u_to_var(Assoc, Node, Var) :- get_assoc(Node, Assoc, Var).
 
-%?- kernel(Sat, _), sat_count(Sat, C).
-%@    Sat = *(...)* *(...), C = 1630580875002.
+%?- C+\(kernel(Sat, _), sat_count(Sat, C)).
+%@    C = 1630580875002.
