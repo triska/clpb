@@ -4,7 +4,6 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(library(clpb)).
-:- use_module(library(clpz)).
 :- use_module(library(format)).
 :- use_module(library(lists)).
 :- use_module(library(dcgs)).
